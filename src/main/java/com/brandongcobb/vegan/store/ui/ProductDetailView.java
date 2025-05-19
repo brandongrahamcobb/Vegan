@@ -89,28 +89,103 @@ public class ProductDetailView extends VerticalLayout implements BeforeEnterObse
     private void buildLayout() {
         removeAll();
 
+        // --- Main image & Vertical Thumbs ---
+        // Imagine ProductGallery can render images as VERTICAL thumbnails
+        // (if not, adapt its code or do a simple Column of thumbnail Images)
+        VerticalLayout galleryCol = new VerticalLayout();
+        galleryCol.setPadding(false);
+        galleryCol.setSpacing(false);
+        galleryCol.setAlignItems(Alignment.CENTER);
+
+        // Vertical list of thumbs on the left,
+        // main image to the right of thumbs.
+        HorizontalLayout imageBlock = new HorizontalLayout();
+        imageBlock.setDefaultVerticalComponentAlignment(Alignment.START);
+
+        VerticalLayout thumbs = new VerticalLayout();
+        thumbs.setSpacing(false);
+        Image mainImage = new Image(safeImageUrl(product.getImageUrl()), product.getName());
+        product.getImageUrls().forEach(url -> {
+            Image thumb = new Image(url, "Thumbnail");
+            thumb.setWidth("50px");
+            thumb.setHeight("50px");
+            thumb.getStyle().set("cursor", "pointer")
+                .set("border", "1px solid #ddd")
+                .set("margin-bottom", "6px");
+            thumb.addClickListener(e -> mainImage.setSrc(safeImageUrl(url)));
+            thumbs.add(thumb);
+        });
+
+       
+        mainImage.setWidth("360px");
+        mainImage.getStyle().set("border-radius", "8px")
+            .set("box-shadow", "0 4px 16px #eee")
+            .set("margin", "0 6px");
+
+        imageBlock.add(thumbs, mainImage);
+
+        // --- Center: Details ---
+        VerticalLayout detailsCol = new VerticalLayout();
+        detailsCol.setPadding(false);
+        detailsCol.setSpacing(true);
+        detailsCol.setWidth("420px");
+
         H2 name = new H2(product.getName());
+        name.getStyle().set("font-size", "2em");
 
-        Paragraph description = new Paragraph(product.getDescription());
+        Paragraph category = new Paragraph("Category: " +
+            (product.getCategory() != null ? product.getCategory().getName() : "N/A"));
+        category.getStyle().set("color", "#888");
 
-        Paragraph price = new Paragraph("Price: $" + product.getPrice().setScale(2, RoundingMode.HALF_UP));
+        Paragraph price = new Paragraph("$" + product.getPrice().setScale(2, RoundingMode.HALF_UP));
+        price.getStyle().set("font-size", "1.6em").set("color", "#B12704").set("font-weight", "bold");
 
-        Paragraph stock = new Paragraph("Stock: " + product.getStock());
+        Paragraph stock = new Paragraph(product.getStock() > 0 ?
+            "In Stock" : "Out of Stock");
+        stock.getStyle().set("color", product.getStock() > 0 ? "green" : "red");
 
-        Paragraph category = new Paragraph("Category: " + (product.getCategory() != null ? product.getCategory().getName() : "N/A"));
+        Paragraph desc = new Paragraph(product.getDescription());
 
-        // Main image
-        Image mainImage = new Image(product.getImageUrl() != null ? product.getImageUrl() : "frontend/images/placeholder.png", product.getName());
-        mainImage.setWidth("300px");
-        mainImage.getStyle().set("border-radius", "10px");
+        detailsCol.add(name, category, price, stock, desc);
 
-        ProductGallery gallery = new ProductGallery(product.getImageUrls());
+        // --- Right: Cart box ---
+        VerticalLayout cartCol = new VerticalLayout();
+        cartCol.getStyle()
+            .set("background", "#fafafa")
+            .set("border", "1px solid #ebecee")
+            .set("border-radius", "10px")
+            .set("padding", "1.2em")
+            .set("margin-top", "0");
+        cartCol.setAlignItems(Alignment.STRETCH);
+
+        Paragraph cartPrice = new Paragraph("$" + product.getPrice().setScale(2, RoundingMode.HALF_UP));
+        cartPrice.getStyle().set("font-size", "1.25em").set("color", "#B12704").set("font-weight", "bold");
+
         Button addToCart = new Button("Add to Cart", e -> {
             cartService.addToCart(product, 1);
             Notification.show(product.getName() + " added to cart");
         });
-        add(name, gallery, mainImage, price, stock, category, description, addToCart);
+        addToCart.getStyle().set("background", "#FFD814").set("font-size", "1.1em");
+        addToCart.setWidthFull();
 
-        setAlignItems(Alignment.CENTER);
+        cartCol.add(cartPrice, stock, addToCart);
+
+        // --- Top-align all columns, set min widths, add spacing ---
+        HorizontalLayout main = new HorizontalLayout(imageBlock, detailsCol, cartCol);
+        main.setWidthFull();
+        main.setSpacing(true);
+        main.setDefaultVerticalComponentAlignment(Alignment.START);
+
+        imageBlock.getStyle().set("margin-right", "36px");
+        detailsCol.getStyle().set("margin-right", "36px");
+
+        add(main);
+        setHorizontalComponentAlignment(Alignment.CENTER, main);
     }
+    
+    private static String safeImageUrl(String url) {
+        return (url != null && !url.trim().isEmpty()) ? url : "frontend/images/placeholder.png";
+    }
+    
+    
 }
