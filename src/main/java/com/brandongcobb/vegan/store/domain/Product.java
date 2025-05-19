@@ -2,6 +2,9 @@ package com.brandongcobb.vegan.store.domain;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "products")
@@ -30,6 +33,38 @@ public class Product {
     @JoinColumn(name = "category_id")
     private Category category;
 
+    // --- New extended fields ---
+    @Column(length = 150)
+    private String brand;
+
+    @Column(length = 100)
+    private String dimensions;  // e.g. "10x5x3 cm"
+
+    private Double weight;      // in kg
+
+    @Column(length = 500)
+    private String tags;        // comma separated tags
+
+    @Column(name = "seo_title", length = 150)
+    private String seoTitle;
+
+    @Column(name = "seo_keywords", length = 500)
+    private String seoKeywords;
+
+    @Column(name = "seo_description", length = 1000)
+    private String seoDescription;
+
+    @Column(nullable = false)
+    private boolean active = true;
+
+    @Column(name = "date_added")
+    private LocalDate dateAdded;
+    
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<ProductImage> images = new ArrayList<>();
+
+    // --- Constructors ---
+
     public Product() { }
 
     public Product(String name, String description, BigDecimal price, Integer stock, Category category) {
@@ -38,8 +73,11 @@ public class Product {
         this.price = price;
         this.stock = stock;
         this.category = category;
-        this.imageUrl = null;
+        this.active = true;
+        this.dateAdded = LocalDate.now();
     }
+
+    // --- Getters and Setters ---
 
     public String getImageUrl() {
         return imageUrl;
@@ -71,6 +109,7 @@ public class Product {
         this.description = description;
     }
 
+
     public BigDecimal getPrice() {
         return price;
     }
@@ -95,6 +134,86 @@ public class Product {
         this.category = category;
     }
 
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    public String getDimensions() {
+        return dimensions;
+    }
+
+    public void setDimensions(String dimensions) {
+        this.dimensions = dimensions;
+    }
+
+    public Double getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Double weight) {
+        this.weight = weight;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
+
+    public String getSeoTitle() {
+        return seoTitle;
+    }
+
+    public void setSeoTitle(String seoTitle) {
+        this.seoTitle = seoTitle;
+    }
+
+    public String getSeoKeywords() {
+        return seoKeywords;
+    }
+
+    public void setSeoKeywords(String seoKeywords) {
+        this.seoKeywords = seoKeywords;
+    }
+
+    public String getSeoDescription() {
+        return seoDescription;
+    }
+
+    public void setSeoDescription(String seoDescription) {
+        this.seoDescription = seoDescription;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public LocalDate getDateAdded() {
+        return dateAdded;
+    }
+
+    public void setDateAdded(LocalDate dateAdded) {
+        this.dateAdded = dateAdded;
+    }
+    
+    public List<String> getImageUrls() {
+        return images.stream().map(ProductImage::getUrl).toList();
+    }
+
+    public void addImage(String url) {
+        this.images.add(new ProductImage(url, this));
+    }
+    
     @Override
     public String toString() {
         return String.format("%s (%.2f) [%d in stock]", name, price, stock);

@@ -42,7 +42,7 @@ public class OrderServiceImpl implements OrderService {
         Customer customer = customerRepository.findById(request.customerId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Customer not found"));
         List<OrderLine> lines = request.items().stream().map(item -> {
-            Product product = productRepository.findById(item.productId())
+            Product product = productRepository.findProductWithImagesById(item.productId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product not found: " + item.productId()));
             if (product.getStock() < item.quantity()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient stock for product: " + product.getName());

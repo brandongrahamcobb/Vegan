@@ -47,10 +47,6 @@ public class StoreService {
         return productRepo.findAll();
     }
 
-    public Optional<Product> findProductById(Long id) {
-        return productRepo.findById(id);
-    }
-
     public Product saveProduct(Product product) {
         return productRepo.save(product);
     }
@@ -58,4 +54,16 @@ public class StoreService {
     public void deleteProduct(Long id) {
         productRepo.deleteById(id);
     }
+    
+    public void addProductImage(Long productId, String imageUrl) {
+        Product product = productRepo.findProductWithImagesById(productId).orElseThrow();
+        product.addImage(imageUrl);
+        productRepo.save(product);
+    }
+    
+    @Transactional
+    public Optional<Product> transactFindProductById(Long id) {
+        return productRepo.findProductWithImagesById(id);
+    }
 }
+
