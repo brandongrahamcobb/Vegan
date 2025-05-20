@@ -217,7 +217,18 @@ public class StoreView extends Composite<VerticalLayout> implements BeforeEnterO
         SplitLayout split = new SplitLayout(catalog, new VerticalLayout());
         split.setSizeFull();
         split.setSplitterPosition(70);
-        
+        Image botIcon = new Image("/images/assistant.svg", "AI Assistant");
+        botIcon.getStyle()
+            .set("position", "fixed")
+            .set("bottom", "24px")
+            .set("right", "24px")
+            .set("width", "64px")
+            .set("cursor", "pointer")
+            .set("z-index", "9999");
+
+        //botIcon.addClickListener(e -> openAssistantOverlay());
+
+        getContent().add(botIcon);
         getContent().add(split);
         getContent().setSizeFull();
     }
