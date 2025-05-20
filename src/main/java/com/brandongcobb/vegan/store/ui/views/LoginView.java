@@ -9,14 +9,15 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-
+import org.springframework.stereotype.Component;
 /**
  * A login view rendered by Spring Security if the user is not authenticated.
  */
 @Route("login")
 @PageTitle("Login | Vegan Store")
 @AnonymousAllowed
-public class LoginView extends VerticalLayout implements View {
+@Component
+public class LoginView extends VerticalLayout implements BeforeEnterObserver {//} extends View {
 
     private final LoginForm login = new LoginForm();
 

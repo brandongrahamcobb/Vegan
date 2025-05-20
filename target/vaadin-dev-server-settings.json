@@ -1,0 +1,17 @@
+{
+  "frontendFolder": "/Users/spawd/git/VegBench/./frontend",
+  "themeFolder": "themes",
+  "themeResourceFolder": "/Users/spawd/git/VegBench/./frontend/generated/jar-resources",
+  "staticOutput": "/Users/spawd/git/VegBench/target/classes/META-INF/VAADIN/webapp/VAADIN/static",
+  "generatedFolder": "generated",
+  "statsOutput": "/Users/spawd/git/VegBench/target/classes/META-INF/VAADIN/config",
+  "frontendBundleOutput": "/Users/spawd/git/VegBench/target/classes/META-INF/VAADIN/webapp",
+  "devBundleOutput": "/Users/spawd/git/VegBench/target/dev-bundle/webapp",
+  "devBundleStatsOutput": "/Users/spawd/git/VegBench/target/dev-bundle/config",
+  "jarResourcesFolder": "/Users/spawd/git/VegBench/./frontend/generated/jar-resources",
+  "themeName": "vegan",
+  "clientServiceWorkerSource": "/Users/spawd/git/VegBench/target/sw.ts",
+  "pwaEnabled": false,
+  "offlineEnabled": false,
+  "offlinePath": "'offline.html'"
+}

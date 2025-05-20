@@ -35,11 +35,14 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.brandongcobb.vegan.store.ui.base.*;
+import org.springframework.stereotype.Component;
+import com.vaadin.flow.router.BeforeEnterEvent;
 
-
+@Component
 @Route(value = "admin/products", layout = AdminLayout.class)
 @PageTitle("Products")
-public class AdminProductView extends VerticalLayout implements View {
+public class AdminProductView extends View {
 
     private final StoreService service;
     private final FileStorageService storageService;
@@ -76,9 +79,6 @@ public class AdminProductView extends VerticalLayout implements View {
         setSizeFull();
         configureGrid();
         configureForm();
-        buildLayout();
-        updateGrid();
-        clearForm();
     }
 
     private void configureGrid() {
@@ -268,6 +268,13 @@ public class AdminProductView extends VerticalLayout implements View {
         grid.deselectAll();
         delete.setEnabled(false);
         save.setText("Save");
+    }
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        super.beforeEnter(event);
+        updateGrid();
+        clearForm();
     }
 
     private void updateGrid() {

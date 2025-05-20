@@ -1,4 +1,4 @@
-package com.brandongcobb.vegan;
+package com.brandongcobb.vegan.store.config;
 
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.server.AppShellSettings;

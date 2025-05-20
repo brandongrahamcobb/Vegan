@@ -43,10 +43,14 @@ import java.util.Optional;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import com.brandongcobb.vegan.store.ui.base.*;
+import org.springframework.stereotype.Component;
+
 
 @Route("product/:productId")
 @PageTitle("Product Details | Vegan Store")
-public class ProductDetailView extends VerticalLayout implements View {
+@Component
+public class ProductDetailView extends View {
 
     private final StoreService service;
     private final CartService cartService;
@@ -60,7 +64,6 @@ public class ProductDetailView extends VerticalLayout implements View {
         setPadding(true);
     }
 
-    @Override
     public void beforeEnter(BeforeEnterEvent event) {
         // Expect product ID as a route parameter
         Optional<String> param = event.getRouteParameters().get("productId");

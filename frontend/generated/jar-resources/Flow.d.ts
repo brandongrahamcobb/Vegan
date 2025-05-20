@@ -1,5 +1,5 @@
 export interface FlowConfig {
-    imports?: () => void;
+    imports?: () => Promise<any>;
 }
 interface AppConfig {
     productionMode: boolean;
@@ -17,6 +17,7 @@ interface HTMLRouterContainer extends HTMLElement {
     onBeforeEnter?: (ctx: NavigationParameters, cmd: PreventAndRedirectCommands, router: Router) => void | Promise<any>;
     onBeforeLeave?: (ctx: NavigationParameters, cmd: PreventCommands, router: Router) => void | Promise<any>;
     serverConnected?: (cancel: boolean, url?: NavigationParameters) => void;
+    serverPaused?: () => void;
 }
 interface FlowRoute {
     action: (params: NavigationParameters) => Promise<HTMLRouterContainer>;
@@ -24,10 +25,11 @@ interface FlowRoute {
 }
 export interface NavigationParameters {
     pathname: string;
-    search: string;
+    search?: string;
 }
 export interface PreventCommands {
     prevent: () => any;
+    continue?: () => any;
 }
 export interface PreventAndRedirectCommands extends PreventCommands {
     redirect: (route: string) => any;
@@ -64,6 +66,7 @@ export declare class Flow {
     private getFlowRouteQuery;
     private flowInit;
     private loadScript;
+    private findNonce;
     private injectAppIdScript;
     private flowInitClient;
     private flowInitUi;

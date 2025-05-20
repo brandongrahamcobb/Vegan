@@ -7,9 +7,10 @@ import org.springframework.context.annotation.Scope;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.springframework.context.annotation.ScopedProxyMode;
 
 @Service
-@Scope("session")
+@Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class CartService {
     private final Map<Product, Integer> cart = new LinkedHashMap<>();
 

@@ -4,16 +4,7 @@ import { Debouncer } from '@polymer/polymer/lib/utils/debounce.js';
 import { idlePeriod } from '@polymer/polymer/lib/utils/async.js';
 import { PolymerElement } from '@polymer/polymer/polymer-element.js';
 import { flowComponentDirective } from './flow-component-directive.js';
-
-/**
- * Returns the requested node from the Flow client.
- * @param {string} appid
- * @param {number} nodeid
- * @returns {Element | null} The element if found, null otherwise.
- */
-function getNodeInternal(appid, nodeid) {
-  return window.Vaadin.Flow.clients[appid].getByNodeId(nodeid);
-}
+import { render, html as litHtml } from 'lit';
 
 /**
  * Returns the requested node in a form suitable for Lit template interpolation.
@@ -33,8 +24,7 @@ function getNode(appid, nodeid) {
  * @param {Element} root
  */
 function setChildNodes(appid, nodeIds, root) {
-  root.textContent = '';
-  root.append(...nodeIds.map(id => getNodeInternal(appid, id)));
+  render(litHtml`${nodeIds.map((id) => flowComponentDirective(appid, id))}`, root);
 }
 
 /**
@@ -85,7 +75,7 @@ class FlowComponentRenderer extends PolymerElement {
   static get properties() {
     return {
       nodeid: Number,
-      appid: String,
+      appid: String
     };
   }
   static get observers() {
@@ -95,11 +85,7 @@ class FlowComponentRenderer extends PolymerElement {
   ready() {
     super.ready();
     this.addEventListener('click', function (event) {
-      if (
-        this.firstChild &&
-        typeof this.firstChild.click === 'function' &&
-        event.target === this
-      ) {
+      if (this.firstChild && typeof this.firstChild.click === 'function' && event.target === this) {
         event.stopPropagation();
         this.firstChild.click();
       }
@@ -108,13 +94,17 @@ class FlowComponentRenderer extends PolymerElement {
   }
 
   _asyncAttachRenderedComponentIfAble() {
-    this._debouncer = Debouncer.debounce(this._debouncer, idlePeriod, () =>
-      this._attachRenderedComponentIfAble()
-    );
+    this._debouncer = Debouncer.debounce(this._debouncer, idlePeriod, () => this._attachRenderedComponentIfAble());
   }
 
   _attachRenderedComponentIfAble() {
-    if (!this.nodeid || !this.appid) {
+    if (this.appid == null) {
+      return;
+    }
+    if (this.nodeid == null) {
+      if (this.firstChild) {
+        this.removeChild(this.firstChild);
+      }
       return;
     }
     const renderedComponent = this._getRenderedComponent();
@@ -144,11 +134,7 @@ class FlowComponentRenderer extends PolymerElement {
     try {
       return window.Vaadin.Flow.clients[this.appid].getByNodeId(this.nodeid);
     } catch (error) {
-      console.error(
-        'Could not get node %s from app %s',
-        this.nodeid,
-        this.appid
-      );
+      console.error('Could not get node %s from app %s', this.nodeid, this.appid);
       console.error(error);
     }
     return null;

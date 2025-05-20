@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import com.brandongcobb.vegan.store.service.CartService;
 import com.brandongcobb.vegan.store.ui.layouts.*;
+import com.brandongcobb.vegan.store.ui.base.*;
 import com.brandongcobb.vegan.store.api.dto.OrderLineRequest;
 import com.brandongcobb.vegan.store.api.dto.PlaceOrderRequest;
 import com.brandongcobb.vegan.store.api.dto.OrderResponse;
@@ -54,11 +55,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import com.vaadin.flow.component.dependency.CssImport;
+import org.springframework.stereotype.Component;
+import com.vaadin.flow.router.BeforeEnterEvent;
 
+@Component
 @CssImport("./styles/store-styles.css")
 @Route(value = "store", layout = StoreLayout.class)
 @PageTitle("Store | Vegan Store")
-public class StoreView extends VerticalLayout implements View {
+public class StoreView extends View {
 
     private final StoreService storeService;
     private final OrderService orderService;
@@ -85,13 +89,8 @@ public class StoreView extends VerticalLayout implements View {
         setPadding(false);
         setSpacing(false);
 
-        // apply the CSS grid class
         catalog.addClassName("product-catalog");
         configureCartGrid();
-        buildProductCatalog();
-        buildLayout();
-        updateCartGrid();
-        
     }
 
     private void buildProductCatalog() {
@@ -228,5 +227,12 @@ public class StoreView extends VerticalLayout implements View {
             this.product = product;
             this.quantity = quantity;
         }
+    }
+    
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        super.beforeEnter(event);
+        buildProductCatalog();
+        updateCartGrid();
     }
 }

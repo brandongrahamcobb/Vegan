@@ -22,12 +22,13 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
-
-
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.context.annotation.Scope;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
 @Transactional
 public class StoreService {
 

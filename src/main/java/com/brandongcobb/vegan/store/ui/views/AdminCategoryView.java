@@ -10,6 +10,7 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationException;
@@ -38,10 +39,13 @@ import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.brandongcobb.vegan.store.ui.base.*;
+import org.springframework.stereotype.Component;
 
+@Component
 @Route(value = "admin/categories", layout = AdminLayout.class)
 @PageTitle("Categories")
-public class AdminCategoryView extends VerticalLayout implements View {
+public class AdminCategoryView extends View {
 
     private final StoreService service;
 
@@ -62,10 +66,6 @@ public class AdminCategoryView extends VerticalLayout implements View {
 
         configureGrid();
         configureForm();
-        buildLayout();
-
-        updateGrid();
-        clearForm();
     }
 
     private void configureGrid() {
@@ -88,7 +88,6 @@ public class AdminCategoryView extends VerticalLayout implements View {
 
       // parent binding
         parentCombo.setItemLabelGenerator(Category::getFullPath);
-        parentCombo.setItems(service.listAllCategories());
         binder.forField(parentCombo)
           .bind(Category::getParent, Category::setParent);
 
@@ -97,6 +96,7 @@ public class AdminCategoryView extends VerticalLayout implements View {
         clear.addClickListener(e -> clearForm());
     }
 
+    @Override
     public void buildLayout() {
         H2 title = new H2("Manage Categories");
         FormLayout form = new FormLayout(nameField, parentCombo);
@@ -162,7 +162,16 @@ public class AdminCategoryView extends VerticalLayout implements View {
         save.setText("Save");
     }
 
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        super.beforeEnter(event);
+        updateGrid();
+        clearForm();
+    }
+
     private void updateGrid() {
-        grid.setItems(service.listAllCategories());
+        var items = service.listAllCategories();
+        grid.setItems(items);
+        parentCombo.setItems(items);
     }
 }

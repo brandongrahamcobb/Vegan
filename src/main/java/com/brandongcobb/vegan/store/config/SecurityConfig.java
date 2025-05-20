@@ -40,12 +40,6 @@ public class SecurityConfig {
               .requestMatchers(new AntPathRequestMatcher("/HEARTBEAT/**")).permitAll()
               .requestMatchers(new AntPathRequestMatcher("/UIDL/**")).permitAll()
 
-              // Public REST endpoints
-              .requestMatchers(new AntPathRequestMatcher("/api/auth/**")).permitAll()
-              .requestMatchers(
-                  new AntPathRequestMatcher("/api/products/**", HttpMethod.GET.name()),
-                  new AntPathRequestMatcher("/api/categories/**", HttpMethod.GET.name())
-              ).permitAll()
 
               // Public UI endpoints
               .requestMatchers(new AntPathRequestMatcher("/"),
