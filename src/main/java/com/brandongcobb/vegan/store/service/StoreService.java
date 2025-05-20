@@ -61,7 +61,7 @@ public class StoreService {
 
     // —— Product operations —— //
 
-    public List<Product> listProducts() {
+    public List<Product> findAllProducts() {
         return productRepo.findAll();
     }
 

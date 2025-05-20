@@ -49,7 +49,6 @@ import org.springframework.stereotype.Component;
 
 @Route("product/:productId")
 @PageTitle("Product Details | Vegan Store")
-@Component
 public class ProductDetailView extends View {
 
     private final StoreService service;

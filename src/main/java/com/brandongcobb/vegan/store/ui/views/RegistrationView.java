@@ -24,7 +24,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.stereotype.Component;
-@Component
+
 @Route("register")
 @PageTitle("Register | Vegan Store")
 @AnonymousAllowed

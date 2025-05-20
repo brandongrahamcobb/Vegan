@@ -39,7 +39,6 @@ import com.brandongcobb.vegan.store.ui.base.*;
 import org.springframework.stereotype.Component;
 import com.vaadin.flow.router.BeforeEnterEvent;
 
-@Component
 @Route(value = "admin/products", layout = AdminLayout.class)
 @PageTitle("Products")
 public class AdminProductView extends View {
@@ -278,7 +277,7 @@ public class AdminProductView extends View {
     }
 
     private void updateGrid() {
-        grid.setItems(service.listProducts());
+        grid.setItems(service.findAllProducts());
         categoryCombo.setItems(service.listCategories());
     }
 }

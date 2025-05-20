@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 @Route("login")
 @PageTitle("Login | Vegan Store")
 @AnonymousAllowed
-@Component
 public class LoginView extends VerticalLayout implements BeforeEnterObserver {//} extends View {
 
     private final LoginForm login = new LoginForm();

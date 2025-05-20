@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
  */
 @Route("")
 @AnonymousAllowed
-@Component
 public class DefaultView extends Div implements BeforeEnterObserver {
     
     public void beforeEnter(BeforeEnterEvent event) {

@@ -10,8 +10,9 @@ import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.RouterLink;
+import com.vaadin.flow.router.Layout;
 import com.brandongcobb.vegan.store.ui.views.*;
-
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 public class AdminLayout extends AppLayout {
 
