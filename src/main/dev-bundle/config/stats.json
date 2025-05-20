@@ -253,14 +253,16 @@
   "vaadin-time-picker/timepickerConnector.js": "68889ce9748478f71bf1620d488abbbd588f8047618ac558315d9b0b689e75e8",
   "virtualListConnector.js": "e89f6bc6f5cd4765c863ae12721371ebff9079d163679e3989368fb7f74e5e61"
  },
- "themeJsonContents": {},
+ "themeJsonContents": {
+  "vegan": "{\n  \"styles\": [\"styles.css\"]\n}\n"
+ },
  "entryScripts": [
-  "VAADIN/build/indexhtml-72f3039b.js"
+  "VAADIN/build/indexhtml-6829f909.js"
  ],
  "webComponents": [],
  "cvdlModules": {},
  "packageJsonHash": "bab856999e4bbcc33fb0820a2521484eef6e525dec5887e5573a3b7424b99947",
  "indexHtmlGenerated": [
-  "  <script type=\"module\" crossorigin src=\"./VAADIN/build/indexhtml-72f3039b.js\"></script>"
+  "  <script type=\"module\" crossorigin src=\"./VAADIN/build/indexhtml-6829f909.js\"></script>"
  ]
 }

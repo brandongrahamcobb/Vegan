@@ -1,7 +1,7 @@
 package com.brandongcobb.vegan.store.config;
 
 import com.brandongcobb.vegan.store.repo.CustomerRepository;
-import com.brandongcobb.vegan.store.ui.LoginView;
+import com.brandongcobb.vegan.store.ui.views.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;

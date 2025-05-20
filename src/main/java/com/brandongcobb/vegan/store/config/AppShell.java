@@ -4,8 +4,12 @@ import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.server.AppShellSettings;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
+import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.dependency.StyleSheet;
 
-@Theme(variant = Lumo.DARK) // Built-in Lumo Dark Mode
+//@StyleSheet("context://styles/store-stylesø.css")
+@CssImport(("./styles/store-styles.css")) // Built-in Lumo Dark Mode
+@Theme("vegan")
 public class AppShell implements AppShellConfigurator {
     // No need to override configurePage if using Lumo.DARK
 }
