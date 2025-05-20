@@ -1,4 +1,5 @@
 package com.brandongcobb.vegan.store.ui.views;
+import com.vaadin.flow.component.Composite;
 
 import com.brandongcobb.vegan.store.ui.layouts.*;
 import com.brandongcobb.vegan.store.domain.Category;
@@ -41,7 +42,7 @@ import com.vaadin.flow.router.Route;
 
 @Route(value = "admin/categories", layout = AdminLayout.class)
 @PageTitle("Categories")
-public class AdminCategoryView extends VerticalLayout implements BeforeEnterObserver {
+public class AdminCategoryView extends Composite<VerticalLayout> implements BeforeEnterObserver {
     
     private final StoreService service;
     
@@ -65,9 +66,9 @@ public class AdminCategoryView extends VerticalLayout implements BeforeEnterObse
         this.treeData     = new TreeData<>();
         this.dataProvider = new TreeDataProvider<>(treeData);
         tree.setDataProvider(dataProvider);
-        setSizeFull();
-        setPadding(true);
-        setSpacing(true);
+        getContent().setSizeFull();
+        getContent().setPadding(true);
+        getContent().setSpacing(true);
         
         // --- HEADER BAR: filter + "new" button ---
         filter.setPlaceholder("Search…");
@@ -79,7 +80,7 @@ public class AdminCategoryView extends VerticalLayout implements BeforeEnterObse
         HorizontalLayout header = new HorizontalLayout(new H2("Manage Categories"), filter, btnNew);
         header.expand(filter);
         header.setWidthFull();
-        add(header);
+        getContent().add(header);
         
         // --- MAIN SPLIT LAYOUT ---
         SplitLayout split = new SplitLayout();
@@ -87,7 +88,7 @@ public class AdminCategoryView extends VerticalLayout implements BeforeEnterObse
         split.addToPrimary(buildTreeGrid());
         split.addToSecondary(buildForm());
         split.setSplitterPosition(60); // percent
-        add(split);
+        getContent().add(split);
     }
     
     private TreeGrid<Category> buildTreeGrid() {

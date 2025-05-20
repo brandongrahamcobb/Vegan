@@ -1,4 +1,5 @@
 package com.brandongcobb.vegan.store.ui.views;
+import com.vaadin.flow.component.Composite;
 import com.brandongcobb.vegan.store.ui.views.*;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.login.LoginForm;
@@ -16,21 +17,21 @@ import org.springframework.stereotype.Component;
 @Route("login")
 @PageTitle("Login | Vegan Store")
 @AnonymousAllowed
-public class LoginView extends VerticalLayout implements BeforeEnterObserver {//} extends View {
+public class LoginView extends Composite<VerticalLayout> implements BeforeEnterObserver {//} extends View {
 
     private final LoginForm login = new LoginForm();
 
     public LoginView() {
-        setSizeFull();
-        setAlignItems(FlexComponent.Alignment.CENTER);
-        setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        getContent().setSizeFull();
+        getContent().setAlignItems(FlexComponent.Alignment.CENTER);
+        getContent().setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
         login.setAction("login");
         // login.setOpened(true); LoginForm is always visible in the layout
         login.setForgotPasswordButtonVisible(false);
         Anchor registerLink = new Anchor("register", "Don’t have an account? Sign up");
         registerLink.getStyle().set("margin-top","1em");
-        add(login, registerLink);
+        getContent().add(login, registerLink);
     }
 
     @Override

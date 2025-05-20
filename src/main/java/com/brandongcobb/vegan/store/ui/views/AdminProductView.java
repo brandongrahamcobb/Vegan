@@ -75,7 +75,7 @@ public class AdminProductView extends View {
                        FileStorageService storageService) {
         this.service = service;
         this.storageService = storageService;
-        setSizeFull();
+        getContent().setSizeFull();
         configureGrid();
         configureForm();
     }
@@ -212,7 +212,7 @@ public class AdminProductView extends View {
         main.setFlexGrow(2, grid);
         main.setFlexGrow(1, formContainer);
 
-        add(main);
+        getContent().add(main);
     }
 
     private void edit(Product p) {

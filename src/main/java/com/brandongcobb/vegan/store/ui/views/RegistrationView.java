@@ -1,4 +1,5 @@
 package com.brandongcobb.vegan.store.ui.views;
+import com.vaadin.flow.component.Composite;
 import com.brandongcobb.vegan.store.ui.views.*;
 import com.brandongcobb.vegan.store.api.dto.CustomerRegistrationRequest;
 import com.brandongcobb.vegan.store.api.dto.CustomerResponse;
@@ -28,7 +29,7 @@ import org.springframework.stereotype.Component;
 @Route("register")
 @PageTitle("Register | Vegan Store")
 @AnonymousAllowed
-public class RegistrationView extends VerticalLayout{ //} extends View {
+public class RegistrationView extends Composite<VerticalLayout>{ //} extends View {
     
     // simple bean to back the form
     public static class RegistrationForm {
@@ -63,9 +64,9 @@ public class RegistrationView extends VerticalLayout{ //} extends View {
         this.customerService = customerService;
         
         // Make this layout fill the window and center its children
-        setSizeFull();
-        setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-        setAlignItems(FlexComponent.Alignment.CENTER);
+        getContent().setSizeFull();
+        getContent().setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        getContent().setAlignItems(FlexComponent.Alignment.CENTER);
         
         // Build the actual Vaadin FormLayout
         FormLayout formLayout = new FormLayout();
@@ -113,7 +114,7 @@ public class RegistrationView extends VerticalLayout{ //} extends View {
         .set("background", "var(--lumo-base-color)");
         card.add(new H2("Create a new account"), formLayout, register, loginLink);
         
-        add(card);
+        getContent().add(card);
     }
     
     private void signUp() {

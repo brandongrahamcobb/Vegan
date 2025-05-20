@@ -16,7 +16,7 @@ import com.vaadin.flow.router.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.notification.Notification;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import com.vaadin.flow.component.Composite;
 import com.brandongcobb.vegan.store.domain.Product;
 import com.brandongcobb.vegan.store.service.StoreService;
 import com.brandongcobb.vegan.store.ui.components.ProductGallery;
@@ -31,8 +31,8 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-
-
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.UI;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
@@ -49,7 +49,7 @@ import org.springframework.stereotype.Component;
 
 @Route("product/:productId")
 @PageTitle("Product Details | Vegan Store")
-public class ProductDetailView extends View {
+public class ProductDetailView extends Composite<VerticalLayout> {
 
     private final StoreService service;
     private final CartService cartService;
@@ -59,8 +59,8 @@ public class ProductDetailView extends View {
     public ProductDetailView(StoreService service, CartService cartService) {
         this.service = service;
         this.cartService = cartService;
-        setSizeFull();
-        setPadding(true);
+        getContent().setSizeFull();
+        getContent().setPadding(true);
     }
 
     public void beforeEnter(BeforeEnterEvent event) {
@@ -89,9 +89,8 @@ public class ProductDetailView extends View {
         }
     }
 
-    @Override
     public void buildLayout() {
-        removeAll();
+        getContent().removeAll();
 
         // --- Main image & Vertical Thumbs ---
         // Imagine ProductGallery can render images as VERTICAL thumbnails
@@ -182,9 +181,9 @@ public class ProductDetailView extends View {
 
         imageBlock.getStyle().set("margin-right", "36px");
         detailsCol.getStyle().set("margin-right", "36px");
-
-        add(main);
-        setHorizontalComponentAlignment(Alignment.CENTER, main);
+        Button back = new Button("← Back", e -> UI.getCurrent().navigate("store"));
+        getContent().add(main);
+        getContent().setHorizontalComponentAlignment(Alignment.CENTER, main);
     }
     
     private static String safeImageUrl(String url) {

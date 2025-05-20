@@ -36,10 +36,14 @@
 /Users/spawd/git/VegBench/src/main/java/com/brandongcobb/vegan/store/service/impl/OrderServiceImpl.java
 /Users/spawd/git/VegBench/src/main/java/com/brandongcobb/vegan/store/ui/base/View.java
 /Users/spawd/git/VegBench/src/main/java/com/brandongcobb/vegan/store/ui/components/ProductGallery.java
+/Users/spawd/git/VegBench/src/main/java/com/brandongcobb/vegan/store/ui/components/avataritem/AvatarItem.java
 /Users/spawd/git/VegBench/src/main/java/com/brandongcobb/vegan/store/ui/layouts/AdminLayout.java
-/Users/spawd/git/VegBench/src/main/java/com/brandongcobb/vegan/store/ui/layouts/StoreLayout.java
+/Users/spawd/git/VegBench/src/main/java/com/brandongcobb/vegan/store/ui/layouts/MainLayout.java
 /Users/spawd/git/VegBench/src/main/java/com/brandongcobb/vegan/store/ui/views/AdminCategoryView.java
+/Users/spawd/git/VegBench/src/main/java/com/brandongcobb/vegan/store/ui/views/AdminOrdersView.java
 /Users/spawd/git/VegBench/src/main/java/com/brandongcobb/vegan/store/ui/views/AdminProductView.java
+/Users/spawd/git/VegBench/src/main/java/com/brandongcobb/vegan/store/ui/views/CheckoutView.java
+/Users/spawd/git/VegBench/src/main/java/com/brandongcobb/vegan/store/ui/views/CustomerView.java
 /Users/spawd/git/VegBench/src/main/java/com/brandongcobb/vegan/store/ui/views/DefaultView.java
 /Users/spawd/git/VegBench/src/main/java/com/brandongcobb/vegan/store/ui/views/LoginView.java
 /Users/spawd/git/VegBench/src/main/java/com/brandongcobb/vegan/store/ui/views/ProductDetailView.java

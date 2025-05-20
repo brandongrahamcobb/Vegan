@@ -1,33 +1,34 @@
 //
+
 //  Untitled.swift
 //  
 //
 //  Created by Brandon Cobb on 5/18/25.
 //
 package com.brandongcobb.vegan.store.ui.components;
-
+import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.util.List;
 
-public class ProductGallery extends VerticalLayout {
+public class ProductGallery extends Composite<VerticalLayout> {
 
     private final Image mainImage = new Image();
 
     private final HorizontalLayout thumbnails = new HorizontalLayout();
 
     public ProductGallery(List<String> imageUrls) {
-        setSpacing(true);
-        setPadding(true);
+        getContent().setSpacing(true);
+        getContent().setPadding(true);
 
         mainImage.setWidth("400px");
         mainImage.getStyle().set("border-radius", "10px");
-        add(mainImage);
+        getContent().add(mainImage);
 
         thumbnails.setSpacing(true);
-        add(thumbnails);
+        getContent().add(thumbnails);
 
         if (imageUrls == null || imageUrls.isEmpty()) {
             // Show a placeholder if no images

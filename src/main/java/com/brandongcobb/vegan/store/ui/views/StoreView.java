@@ -106,8 +106,7 @@ import com.vaadin.flow.component.textfield.TextField;
 
 @Route("store")
 @PageTitle("Store | The Vyrtuous Project")
-public class StoreView extends Composite<VerticalLayout>
-implements BeforeEnterObserver {
+public class StoreView extends Composite<VerticalLayout> implements BeforeEnterObserver {
     
     private final StoreService      storeService;
     private final CartService       cartService;
@@ -148,24 +147,43 @@ implements BeforeEnterObserver {
         // search box
         search.setPlaceholder("Search products…");
         search.setClearButtonVisible(true);
-        search.getStyle().set("width", "250px");
+        search.getStyle().set("width", "800px");
         search.addValueChangeListener(e -> refreshCatalog(e.getValue()));
         
         // menu
-        MenuItem home = menu.addItem("Home", e -> UI.getCurrent().navigate(""));
-        MenuItem store = menu.addItem("Store", e -> UI.getCurrent().navigate("store"));
-        MenuItem about = menu.addItem("About", e -> UI.getCurrent().navigate("about"));
+        //MenuItem home = menu.addItem("Home", e -> UI.getCurrent().navigate(""));
+        //MenuItem store = menu.addItem("Store", e -> UI.getCurrent().navigate("store"));
+        //MenuItem about = menu.addItem("About", e -> UI.getCurrent().navigate("about"));
         
         // cart button + dropdown
+        
         cartDropdown.addClassName("cart-dropdown");
         cartDropdown.getStyle().set("position","absolute")
         .set("background","white")
         .set("border","1px solid #bbb")
         .set("padding","1em")
         .set("display","none");
-        cartBtn.getElement().addEventListener("mouseenter", ev -> cartDropdown.getStyle().set("display","block"));
-        cartBtn.getElement().addEventListener("mouseleave", ev -> cartDropdown.getStyle().set("display","none"));
-        cartDropdown.getElement().addEventListener("mouseleave", ev -> cartDropdown.getStyle().set("display","none"));
+        Div cartContainer = new Div(cartBtn, cartDropdown);
+        cartContainer.getStyle().set("position", "relative");
+        cartContainer.addClassName("cart-container");
+        cartContainer.getElement().addEventListener("mouseenter", ev -> {
+            cartDropdown.getStyle().set("display", "block");
+        });
+        cartContainer.getElement().addEventListener("mouseleave", ev -> {
+            cartDropdown.getStyle().set("display", "none");
+        });
+        cartBtn.getElement().addEventListener("mouseenter", ev -> {
+            cartDropdown.getStyle().set("display", "block");
+        });
+
+        cartDropdown.getElement().addEventListener("mouseenter", ev -> {
+            cartDropdown.getStyle().set("display", "block");
+        });
+        cartDropdown.getElement().addEventListener("mouseleave", ev -> {
+            cartDropdown.getStyle().set("display", "none");
+        });
+        
+
         cartBtn.addClickListener(e -> UI.getCurrent().navigate("checkout"));
         
         // account avatar + dropdown
@@ -175,8 +193,8 @@ implements BeforeEnterObserver {
         .set("border","1px solid #bbb")
         .set("padding","1em")
         .set("display","none");
-        avatarItem.getContent().getElement().addEventListener("mouseenter", ev -> accountDropdown.getStyle().set("display","block"));
-        avatarItem.getContent().getElement().addEventListener("mouseleave", ev -> accountDropdown.getStyle().set("display","none"));
+        avatarItem.getElement().addEventListener("mouseenter", ev -> accountDropdown.getStyle().set("display","block"));
+        avatarItem.getElement().addEventListener("mouseleave", ev -> accountDropdown.getStyle().set("display","none"));
         accountDropdown.getElement().addEventListener("mouseleave", ev -> accountDropdown.getStyle().set("display","none"));
         avatarItem.getContent().addClickListener(e -> UI.getCurrent().navigate("account"));
         
@@ -196,7 +214,7 @@ implements BeforeEnterObserver {
         account.addClickListener(e -> UI.getCurrent().navigate("account"));
         HorizontalLayout actions = new HorizontalLayout(account, checkout);
         
-        SplitLayout split = new SplitLayout(catalog, new VerticalLayout(cartGrid, actions));
+        SplitLayout split = new SplitLayout(catalog, new VerticalLayout());
         split.setSizeFull();
         split.setSplitterPosition(70);
         
@@ -205,25 +223,36 @@ implements BeforeEnterObserver {
     }
     
     private void refreshCatalog(String filter) {
-        catalog.removeAll();
+        catalog.removeAll();  // if `catalog` is a Composite, otherwise just catalog.removeAll()
         String ctx = com.vaadin.flow.server.VaadinServletRequest.getCurrent().getContextPath();
         List<Product> prods = storeService.findAllProducts().stream()
-        .filter(p -> filter==null || filter.isBlank()
+            .filter(p -> filter == null || filter.isBlank()
                 || p.getName().toLowerCase().contains(filter.toLowerCase()))
-        .toList();
+            .toList();
+
         prods.forEach(p -> {
             VerticalLayout card = new VerticalLayout();
             card.addClassName("product-card");
-            String img = p.getImageUrl()==null ? ctx+"/images/placeholder.png" : ctx+p.getImageUrl();
+
+            String img = (p.getImageUrl() == null) ? ctx + "/images/placeholder.png" : ctx + p.getImageUrl();
             Image image = new Image(img, p.getName());
             image.setWidth("100%");
-            Button add = new Button("Add", ev -> {
-                cartService.addToCart(p,1);
+            image.addClickListener(ev ->
+                UI.getCurrent().navigate("product/" + p.getId())
+            );
+
+            Span name = new Span(p.getName());
+            Span price = new Span("$" + p.getPrice());
+
+            Button addToCart = new Button("Add", ev -> {
+                cartService.addToCart(p, 1);
                 refreshCartGrid();
             });
-            card.add(image, new Span(p.getName()), new Span("$"+p.getPrice()), add);
+
+            card.add(image, name, price, addToCart);
             card.setWidth("200px");
-            catalog.add(card);
+
+            catalog.add(card);  // If catalog is a Composite<VerticalLayout>
         });
     }
     
@@ -244,21 +273,34 @@ implements BeforeEnterObserver {
     private void refreshCartGrid() {
         cartSnapshot.clear();
         cartSnapshot.putAll(cartService.getCartItems());
-        cartGrid.setItems(
-                          cartSnapshot.entrySet().stream()
-                          .map(e -> new CartItem(e.getKey(), e.getValue()))
-                          .collect(Collectors.toList())
-                          );
-        
-        // fill cartDropdown
+
         cartDropdown.removeAll();
+
         if (cartSnapshot.isEmpty()) {
             cartDropdown.add(new Span("Cart is empty"));
         } else {
-            cartSnapshot.forEach((p,q) ->
-                                 cartDropdown.add(new Span(p.getName()+" ×"+q))
-                                 );
-            cartDropdown.add(new Button("Go to Checkout", e->UI.getCurrent().navigate("checkout")));
+            Grid<CartItem> dropdownCart = new Grid<>(CartItem.class, false);
+            dropdownCart.setAllRowsVisible(true);
+
+
+            dropdownCart.addColumn(ci -> ci.product.getName()).setHeader("Product");
+            dropdownCart.addColumn(ci -> ci.quantity).setHeader("Qty");
+            dropdownCart.addComponentColumn(ci -> {
+                Button rm = new Button("×", e -> {
+                    cartService.removeFromCart(ci.product);
+                    refreshCartGrid();
+                });
+                return rm;
+            }).setHeader("Remove");
+
+            dropdownCart.setItems(
+                cartSnapshot.entrySet().stream()
+                    .map(e -> new CartItem(e.getKey(), e.getValue()))
+                    .collect(Collectors.toList())
+            );
+
+            cartDropdown.add(dropdownCart);
+            cartDropdown.add(new Button("Go to Checkout", e -> UI.getCurrent().navigate("checkout")));
         }
     }
     
