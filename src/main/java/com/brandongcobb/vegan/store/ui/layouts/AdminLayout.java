@@ -12,6 +12,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.RouterLink;
 import com.brandongcobb.vegan.store.ui.views.*;
 
+
 public class AdminLayout extends AppLayout {
 
     public AdminLayout() {
