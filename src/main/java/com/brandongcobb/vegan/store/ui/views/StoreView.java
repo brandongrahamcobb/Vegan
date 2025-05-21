@@ -188,13 +188,14 @@ public class StoreView extends Composite<VerticalLayout> implements BeforeEnterO
         .set("background","white")
         .set("border","1px solid #bbb")
         .set("padding","1em")
-        .set("display","none");
-        avatarItem.getElement().addEventListener("mouseenter", ev -> accountDropdown.getStyle().set("display","block"));
-        avatarItem.getElement().addEventListener("mouseleave", ev -> accountDropdown.getStyle().set("display","none"));
-        accountDropdown.getElement().addEventListener("mouseleave", ev -> accountDropdown.getStyle().set("display","none"));
-        avatarItem.getContent().addClickListener(e -> UI.getCurrent().navigate("account"));
+        .set("display","none")
+        .set("z-index", "1000");
         Div avatarContainer = new Div(avatarItem, accountDropdown);
-        
+        avatarContainer.getElement().addEventListener("mouseenter", ev -> accountDropdown.getStyle().set("display","block"));
+        avatarContainer.getElement().addEventListener("mouseleave", ev -> accountDropdown.getStyle().set("display","none"));
+        avatarItem.getContent().addClickListener(e -> UI.getCurrent().navigate("account"));
+        avatarContainer.getStyle().set("position", "relative");
+
         // put header pieces into a row
         HorizontalLayout header = new HorizontalLayout(title, search, menu, cartContainer, avatarContainer);
         header.setWidthFull();

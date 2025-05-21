@@ -6,13 +6,13 @@
                              
 
                              
-                             <groupId>com.brandongcobb.vegan</groupId>
-                             <artifactId>vegan-store</artifactId>
+                             <groupId>com.brandongcobb</groupId>
+                             <artifactId>vegan</artifactId>
                              <version>0.1.0</version>
                              <packaging>jar</packaging>
                              
                              <properties>
-                                 <java.version>23</java.version>
+                                 <java.version>21</java.version>
                                  <vaadin.version>24.7.4</vaadin.version>
                                  <jackson.version>2.16.6</jackson.version>
                                  <spring-boot.version>3.4.5</spring-boot.version>
