@@ -24,13 +24,6 @@ public class VeganServiceImpl implements VeganService {
 
     private final VeganRepository veganRepository;
     private final PasswordEncoder passwordEncoder;
-    private static final MetadataType<String> STRING = new MetadataString();
-    private static final MetadataType<Integer> INTEGER = new MetadataInteger();
-    private static final MetadataType<Double> DOUBLE = new MetadataDouble();
-    private static final MetadataType<Float> FLOAT = new MetadataFloat();
-    private static final MetadataType<Boolean> BOOLEAN = new MetadataBoolean();
-    private static final MetadataType<Map<String, Object>> MAP = new MetadataMap();
-    private static final MetadataType<List<String>> LIST = new MetadataList(STRING);
     
     public VeganServiceImpl(VeganRepository veganRepository, PasswordEncoder passwordEncoder) {
         this.veganRepository = veganRepository;
@@ -46,8 +39,8 @@ public class VeganServiceImpl implements VeganService {
                 .thenCompose(instance -> instance.completeGetConfigContainer()
                     .thenApply(container -> {
                         MetadataContainer con = (MetadataContainer) container;
-                        MetadataKey<String> adminPasswordKey = new MetadataKey<>("ADMIN_PASSWORD", STRING); // DEPRECATED: Use Metadata.STRING;
-                        MetadataKey<String> adminEmailKey = new MetadataKey<>("ADMIN_EMAIL", STRING); // DEPRECATED: Use Metadata.STRING;
+                        MetadataKey<String> adminPasswordKey = new MetadataKey<>("ADMIN_PASSWORD", Metadata.STRING); // DEPRECATED: Use Metadata.STRING;
+                        MetadataKey<String> adminEmailKey = new MetadataKey<>("ADMIN_EMAIL", Metadata.STRING); // DEPRECATED: Use Metadata.STRING;
 
                         String password = con.get(adminPasswordKey);
                         String email = con.get(adminEmailKey);
