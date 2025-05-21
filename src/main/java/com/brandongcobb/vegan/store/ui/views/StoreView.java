@@ -20,7 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import com.brandongcobb.vegan.store.service.CartService;
-import com.brandongcobb.vyrtuous.utils.handlers.AIManager;
+import com.brandongcobb.vegan.store.ai.utils.handlers.AIManager;
 import com.vaadin.flow.router.BeforeEnterObserver;
 
 import com.vaadin.flow.router.BeforeEnterEvent;

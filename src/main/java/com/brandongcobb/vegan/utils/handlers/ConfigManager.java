@@ -19,6 +19,7 @@ package com.brandongcobb.vegan.utils.handlers;
 
 import com.brandongcobb.vegan.Application;
 import com.brandongcobb.vegan.utils.inc.*;
+import com.brandongcobb.metadata.*;
 
 import java.io.*;
 import java.net.URI;
@@ -43,12 +44,6 @@ public class ConfigManager<T> {
     private Map<String, Object> defaultConfig = getDefaultConfig();
     private MetadataContainer configurationContainer = new MetadataContainer();
     private static final MetadataType<String> STRING = new MetadataString();
-    private static final MetadataType<Integer> INTEGER = new MetadataInteger();
-    private static final MetadataType<Double> DOUBLE = new MetadataDouble();
-    private static final MetadataType<Float> FLOAT = new MetadataFloat();
-    private static final MetadataType<Boolean> BOOLEAN = new MetadataBoolean();
-    private static final MetadataType<Map<String, Object>> MAP = new MetadataMap();
-    private static final MetadataType<List<String>> LIST = new MetadataList(STRING);
 
     public ConfigManager() {
         instance = this;
@@ -149,10 +144,10 @@ public class ConfigManager<T> {
 
     private void serializeConfig() {
         MetadataContainer con = new MetadataContainer();
-        MetadataKey<String> adminEmailKey = new MetadataKey<>("ADMIN_EMAIL", STRING);
+        MetadataKey<String> adminEmailKey = new MetadataKey<>("ADMIN_EMAIL", Metadata.STRING);
         String adminEmail = (String) config.get("ADMIN_EMAIL");
         con.put(adminEmailKey, adminEmail);
-        MetadataKey<String> adminPasswordKey = new MetadataKey<>("ADMIN_PASSWORD", STRING);
+        MetadataKey<String> adminPasswordKey = new MetadataKey<>("ADMIN_PASSWORD", Metadata.STRING);
         String adminPassword = (String) config.get("ADMIN_PASSWORD");
         con.put(adminPasswordKey, adminPassword);
         this.configurationContainer = con;
