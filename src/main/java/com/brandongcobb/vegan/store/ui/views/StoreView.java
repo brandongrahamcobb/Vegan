@@ -153,6 +153,14 @@ public class StoreView extends Composite<VerticalLayout> implements BeforeEnterO
         split.setSizeFull();
         split.setSplitterPosition(70);
         getContent().add(split);
+        Image botIcon = new Image("/images/assistant.svg", "AI Assistant");
+        botIcon.getStyle()
+                .set("position", "fixed")
+                .set("bottom", "24px")
+                .set("right", "24px")
+                .set("width", "64px")
+                .set("cursor", "pointer")
+                .set("z-index", "10000");
         Div botPopup = new Div();
         botPopup.getStyle()
                 .set("position", "fixed")
@@ -165,27 +173,33 @@ public class StoreView extends Composite<VerticalLayout> implements BeforeEnterO
                 .set("padding", "12px")
                 .set("display", "none")
                 .set("z-index", "10001");
+
         VerticalLayout messages = new VerticalLayout();
         TextField userInput = new TextField();
         userInput.setPlaceholder("Ask me something...");
         Button send = new Button("Send");
+
         send.addClickListener(click -> {
             String input = userInput.getValue();
             if (!input.isBlank()) {
-                MessageManager mm = new MessageManager();
+                messages.add(new Span("🧑 " + input));
+                userInput.clear();
                 Long userId = (Long) VaadinSession.getCurrent().getAttribute("userId");
-                AIManager aim = new AIManager();
-                aim.handleAI(input, userId).thenAccept(response -> {// ideally inject this with @Autowired
+                new AIManager().handleAI(input, userId).thenAccept(response -> {
+                    System.out.println(response);
                     getUI().ifPresent(ui -> ui.access(() -> {
                         messages.add(new Span("🤖 " + response));
                     }));
                 });
-                messages.add(new Span("🧑 " + input));
-                userInput.clear();
             }
         });
+
         botPopup.add(messages, userInput, send);
-        getContent().add(botPopup);
+        botIcon.addClickListener(e -> {
+            boolean visible = "block".equals(botPopup.getStyle().get("display"));
+            botPopup.getStyle().set("display", visible ? "none" : "block");
+        });
+        getContent().add(botIcon, botPopup);
 
 //        .addClickListener(e -> {
 //            botPopup.getStyle().set("display", botPopup.getStyle().get("display").equals("none") ? "block" : "none");

@@ -16,11 +16,12 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.brandongcobb.vyrtuous.utils.handlers;
+package com.brandongcobb.vegan.store.ai.utils.handlers;
 
 import com.brandongcobb.metadata.*;
 import com.brandongcobb.vegan.store.ai.records.ModelInfo;
 import com.brandongcobb.vegan.store.ai.utils.handlers.*;
+import com.brandongcobb.vegan.store.ai.utils.handlers.ResponseObject;
 import com.brandongcobb.vegan.store.ai.utils.inc.*;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -56,7 +57,6 @@ public class AIManager {
     private final Map<Long, ResponseObject> userResponseMap = new ConcurrentHashMap<>();
 
     public CompletableFuture<String> handleAI(String message, long senderId) {
-        MessageManager mem = new MessageManager();
         ResponseObject previousResponse = userResponseMap.get(senderId);
 
         return CompletableFuture.completedFuture(message)
