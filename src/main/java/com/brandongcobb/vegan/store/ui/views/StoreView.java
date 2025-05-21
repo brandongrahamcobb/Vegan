@@ -193,7 +193,7 @@ public class StoreView extends Composite<VerticalLayout> implements BeforeEnterO
         avatarItem.getElement().addEventListener("mouseleave", ev -> accountDropdown.getStyle().set("display","none"));
         accountDropdown.getElement().addEventListener("mouseleave", ev -> accountDropdown.getStyle().set("display","none"));
         avatarItem.getContent().addClickListener(e -> UI.getCurrent().navigate("account"));
-        DIV avatarContainer = new Div(avatarItem, accountDropdown);
+        Div avatarContainer = new Div(avatarItem, accountDropdown);
         
         // put header pieces into a row
         HorizontalLayout header = new HorizontalLayout(title, search, menu, cartContainer, avatarContainer);
@@ -208,7 +208,7 @@ public class StoreView extends Composite<VerticalLayout> implements BeforeEnterO
         configureCartGrid();
         
         checkout.addClickListener(e -> UI.getCurrent().navigate("checkout"));
-        accountContainer.addClickListener(e -> UI.getCurrent().navigate("account"));
+        avatarContainer.addClickListener(e -> UI.getCurrent().navigate("account"));
         HorizontalLayout actions = new HorizontalLayout(account, checkout);
         
         SplitLayout split = new SplitLayout(catalog, new VerticalLayout());

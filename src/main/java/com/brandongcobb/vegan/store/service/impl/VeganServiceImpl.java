@@ -12,6 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import java.util.UUID;
+import java.util.Map;
+import java.util.List;
 import jakarta.annotation.PostConstruct;
 import com.brandongcobb.metadata.*;
 import com.brandongcobb.vegan.utils.handlers.*;
@@ -43,11 +45,12 @@ public class VeganServiceImpl implements VeganService {
             ConfigManager.completeGetInstance()
                 .thenCompose(instance -> instance.completeGetConfigContainer()
                     .thenApply(container -> {
+                        MetadataContainer con = (MetadataContainer) container;
                         MetadataKey<String> adminPasswordKey = new MetadataKey<>("ADMIN_PASSWORD", STRING); // DEPRECATED: Use Metadata.STRING;
                         MetadataKey<String> adminEmailKey = new MetadataKey<>("ADMIN_EMAIL", STRING); // DEPRECATED: Use Metadata.STRING;
 
-                        String password = container.get(adminPasswordKey);
-                        String email = container.get(adminEmailKey);
+                        String password = con.get(adminPasswordKey);
+                        String email = con.get(adminEmailKey);
 
                         String finalEmail = (email != null && !email.isBlank()) ? email : defaultAdminEmail;
                         String finalPassword = (password != null && !password.isBlank()) ? password : "admin"; // fallback
@@ -65,11 +68,13 @@ public class VeganServiceImpl implements VeganService {
                     })
                 )
                 .thenAccept(admin -> {
-                    veganRepository.save(admin);
-                    System.out.println("✅ Admin user created: " + admin.getEmail());
+                    Vegan vegan = (Vegan) admin;
+                    veganRepository.save(vegan);
+                    System.out.println("✅ Admin user created: " + vegan.getEmail());
                 })
-                .exceptionally(ex -> {
-                    System.err.println("❌ Failed to create admin user: " + ex.getMessage());
+                .exceptionally(exception -> {
+                    Exception e = (Exception) exception;
+                    System.err.println("❌ Failed to create admin user: " + e.getMessage());
                     return null;
                 });
         } else {

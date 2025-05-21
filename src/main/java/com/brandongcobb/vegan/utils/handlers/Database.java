@@ -46,7 +46,7 @@ public class Database {
     }
 
     public static CompletableFuture<Database> completeGetInstance() {
-        return CompletableFuture.suppleAsync(() -> instance);
+        return CompletableFuture.supplyAsync(() -> instance);
     }
 
     private CompletableFuture<Void> completeConnectDatabase(Runnable afterConnect) {

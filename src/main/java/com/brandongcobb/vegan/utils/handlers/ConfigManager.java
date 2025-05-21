@@ -41,8 +41,15 @@ public class ConfigManager<T> {
     private Map<String, Object> config = new HashMap<>();
     private Logger logger = Logger.getLogger("Application");
     private Map<String, Object> defaultConfig = getDefaultConfig();
-    private MetadataContainer configurationContainer;
-    
+    private MetadataContainer configurationContainer = new MetadataContainer();
+    private static final MetadataType<String> STRING = new MetadataString();
+    private static final MetadataType<Integer> INTEGER = new MetadataInteger();
+    private static final MetadataType<Double> DOUBLE = new MetadataDouble();
+    private static final MetadataType<Float> FLOAT = new MetadataFloat();
+    private static final MetadataType<Boolean> BOOLEAN = new MetadataBoolean();
+    private static final MetadataType<Map<String, Object>> MAP = new MetadataMap();
+    private static final MetadataType<List<String>> LIST = new MetadataList(STRING);
+
     public ConfigManager() {
         instance = this;
     }
@@ -128,33 +135,33 @@ public class ConfigManager<T> {
         });
     }
 
-    public ConfigManager getInstance() {
+    public static ConfigManager getInstance() {
         return instance;
     }
     
     public CompletableFuture<MetadataContainer> completeGetConfigContainer() {
-        return CompletableFuture.supplyAsync(() -> this.configurationContainer());
+        return CompletableFuture.completedFuture(this.configurationContainer);
     }
     
     private CompletableFuture<Object> completeGetConfigObjectValue(String key) {
-        return CompletableFuture.supplyAsync(() -> this.config.get(key));
+        return CompletableFuture.completedFuture(this.config.get(key));
     }
 
     private void serializeConfig() {
         MetadataContainer con = new MetadataContainer();
-        MetadataKey<String> adminEmailKey = new MetadataKey<>();
+        MetadataKey<String> adminEmailKey = new MetadataKey<>("ADMIN_EMAIL", STRING);
         String adminEmail = (String) config.get("ADMIN_EMAIL");
         con.put(adminEmailKey, adminEmail);
-        MetadataKey<String> adminPasswordKey = new MetadataKey<>();
-        String adminPassword = (String) config.get("ADMIN_EMAIL");
+        MetadataKey<String> adminPasswordKey = new MetadataKey<>("ADMIN_PASSWORD", STRING);
+        String adminPassword = (String) config.get("ADMIN_PASSWORD");
         con.put(adminPasswordKey, adminPassword);
         this.configurationContainer = con;
     }
 
     public static Map<String, Object> getDefaultConfig() {
         Map<String, Object> config = new HashMap<>();
-        config.put("ADMIN_PASSWORD");
-        config.put("ADMIN_EMAIL");
+        config.put("ADMIN_PASSWORD", "admin");
+        config.put("ADMIN_EMAIL", "admin");
         config.put("DISCORD_API_KEY", "");
         config.put("DISCORD_CLIENT_ID", "");
         config.put("DISCORD_CLIENT_SECRET", "");
