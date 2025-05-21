@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "customers", uniqueConstraints = @UniqueConstraint(columnNames = "email"))
-public class Customer {
+@Table(name = "vegans", uniqueConstraints = @UniqueConstraint(columnNames = "email"))
+public class Vegan {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -13,6 +13,9 @@ public class Customer {
 
     @Column(nullable = false)
     private String firstName;
+    
+    @Column(nullable = false)
+    private boolean isAdmin;
 
     @Column(nullable = false)
     private String lastName;
@@ -22,17 +25,26 @@ public class Customer {
 
     @Column(nullable = false)
     private String password;
-
-    protected Customer() {
+    
+    protected Vegan() {
     }
 
-    public Customer(String firstName, String lastName, String email, String password) {
+    public Vegan(String firstName, String lastName, String email, String password) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
+        this.isAdmin = false;
     }
 
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+    
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
+    }
+    
     public Long getId() {
         return id;
     }
@@ -72,11 +84,11 @@ public class Customer {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Customer)) return false;
-        Customer customer = (Customer) o;
-        return Objects.equals(id, customer.id) && Objects.equals(email, customer.email);
+        if (!(o instanceof Vegan)) return false;
+        Vegan vegan = (Vegan) o;
+        return Objects.equals(id, vegan.id) && Objects.equals(email, vegan.email);
     }
-
+    
     @Override
     public int hashCode() {
         return Objects.hash(id, email);

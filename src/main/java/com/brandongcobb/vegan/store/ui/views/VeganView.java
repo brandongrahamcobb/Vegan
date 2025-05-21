@@ -1,6 +1,6 @@
 //
 
-//  CustomerView.java
+//  VeganView.java
 //  
 //
 //  Created by Brandon Cobb on 5/20/25.
@@ -16,8 +16,8 @@ import com.brandongcobb.vegan.store.ui.base.*;
 
 @Route("account")
 @PageTitle("My Account | The Vyrtuous Project")
-public class CustomerView extends Composite<VerticalLayout> {
-    public CustomerView() {
+public class VeganView extends Composite<VerticalLayout> {
+    public VeganView() {
         getContent().add(new H2("My Account (template)"));
     }
 }

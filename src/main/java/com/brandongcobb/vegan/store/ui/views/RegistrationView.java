@@ -1,9 +1,9 @@
 package com.brandongcobb.vegan.store.ui.views;
 import com.vaadin.flow.component.Composite;
 import com.brandongcobb.vegan.store.ui.views.*;
-import com.brandongcobb.vegan.store.api.dto.CustomerRegistrationRequest;
-import com.brandongcobb.vegan.store.api.dto.CustomerResponse;
-import com.brandongcobb.vegan.store.service.CustomerService;
+import com.brandongcobb.vegan.store.api.dto.VeganRegistrationRequest;
+import com.brandongcobb.vegan.store.api.dto.VeganResponse;
+import com.brandongcobb.vegan.store.service.VeganService;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Anchor;
@@ -47,7 +47,7 @@ public class RegistrationView extends Composite<VerticalLayout>{ //} extends Vie
         public void   setConfirmPassword(String cp) { confirmPassword = cp; }
     }
     
-    private final CustomerService customerService;
+    private final VeganService veganService;
     
     private final Binder<RegistrationForm> binder = new Binder<>(RegistrationForm.class);
     private final RegistrationForm formBean = new RegistrationForm();
@@ -60,8 +60,8 @@ public class RegistrationView extends Composite<VerticalLayout>{ //} extends Vie
     private final Button         register  = new Button("Sign Up");
     private final Anchor         loginLink = new Anchor("login", "Already have an account? Log in");
     
-    public RegistrationView(CustomerService customerService) {
-        this.customerService = customerService;
+    public RegistrationView(VeganService veganService) {
+        this.veganService = veganService;
         
         // Make this layout fill the window and center its children
         getContent().setSizeFull();
@@ -124,12 +124,12 @@ public class RegistrationView extends Composite<VerticalLayout>{ //} extends Vie
         }
         try {
             binder.writeBean(formBean);
-            CustomerRegistrationRequest req = new CustomerRegistrationRequest(
+            VeganRegistrationRequest req = new VeganRegistrationRequest(
                                                                               formBean.getFirstName(),
                                                                               formBean.getLastName(),
                                                                               formBean.getEmail(),
                                                                               formBean.getPassword());
-            CustomerResponse resp = customerService.register(req);
+            VeganResponse resp = veganService.register(req);
             Notification.show("Welcome, " + resp.firstName() + "! Please log in.", 3000, Notification.Position.TOP_CENTER);
             getUI().ifPresent(ui -> ui.navigate("login"));
         } catch (ValidationException ex) {

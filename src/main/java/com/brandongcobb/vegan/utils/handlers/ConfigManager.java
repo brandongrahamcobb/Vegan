@@ -33,6 +33,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
+import com.brandongcobb.metadata.*;
 
 public class ConfigManager<T> {
 
@@ -40,7 +41,8 @@ public class ConfigManager<T> {
     private Map<String, Object> config = new HashMap<>();
     private Logger logger = Logger.getLogger("Application");
     private Map<String, Object> defaultConfig = getDefaultConfig();
-
+    private MetadataContainer configurationContainer;
+    
     public ConfigManager() {
         instance = this;
     }
@@ -74,6 +76,7 @@ public class ConfigManager<T> {
         } catch (Exception e) {
             logger.severe("Failed to save merged config: " + e.getMessage());
         }
+        serializeConfig();
         logger.info("Configuration loaded, merged, and saved successfully.");
     }
 
@@ -86,7 +89,8 @@ public class ConfigManager<T> {
             "PATREON_REDIRECT_URI",
             "POSTGRES_DATABASE", "POSTGRES_USER", "POSTGRES_HOST",
             "POSTGRES_PASSWORD", "POSTGRES_PORT",
-            "SPARK_DISCORD_ENDPOINT", "SPARK_PATREON_ENDPOINT", "SPARK_PORT"
+            "SPARK_DISCORD_ENDPOINT", "SPARK_PATREON_ENDPOINT", "SPARK_PORT",
+            "ADMIN_PASSWORD", "ADMIN_EMAIL"
         );
         Path globalPath = Paths.get(System.getProperty("user.home"), ".config", "lucy", "config.yml");
         Map<String, Object> globalConfig = loadYamlConfig(globalPath);
@@ -124,12 +128,33 @@ public class ConfigManager<T> {
         });
     }
 
+    public ConfigManager getInstance() {
+        return instance;
+    }
+    
+    public CompletableFuture<MetadataContainer> completeGetConfigContainer() {
+        return CompletableFuture.supplyAsync(() -> this.configurationContainer());
+    }
+    
     private CompletableFuture<Object> completeGetConfigObjectValue(String key) {
         return CompletableFuture.supplyAsync(() -> this.config.get(key));
     }
 
+    private void serializeConfig() {
+        MetadataContainer con = new MetadataContainer();
+        MetadataKey<String> adminEmailKey = new MetadataKey<>();
+        String adminEmail = (String) config.get("ADMIN_EMAIL");
+        con.put(adminEmailKey, adminEmail);
+        MetadataKey<String> adminPasswordKey = new MetadataKey<>();
+        String adminPassword = (String) config.get("ADMIN_EMAIL");
+        con.put(adminPasswordKey, adminPassword);
+        this.configurationContainer = con;
+    }
+
     public static Map<String, Object> getDefaultConfig() {
         Map<String, Object> config = new HashMap<>();
+        config.put("ADMIN_PASSWORD");
+        config.put("ADMIN_EMAIL");
         config.put("DISCORD_API_KEY", "");
         config.put("DISCORD_CLIENT_ID", "");
         config.put("DISCORD_CLIENT_SECRET", "");
@@ -170,8 +195,8 @@ public class ConfigManager<T> {
     }
 
 
-    public static synchronized ConfigManager getInstance() {
-        return instance;
+    public static synchronized CompletableFuture<ConfigManager> completeGetInstance() {
+        return CompletableFuture.completedFuture(instance);
     }
 
     /*

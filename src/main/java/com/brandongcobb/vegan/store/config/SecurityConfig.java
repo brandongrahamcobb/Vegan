@@ -1,6 +1,6 @@
 package com.brandongcobb.vegan.store.config;
 
-import com.brandongcobb.vegan.store.repo.CustomerRepository;
+import com.brandongcobb.vegan.store.repo.VeganRepository;
 import com.brandongcobb.vegan.store.ui.views.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

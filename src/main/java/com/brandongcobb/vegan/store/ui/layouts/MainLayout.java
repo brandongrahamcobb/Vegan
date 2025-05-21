@@ -38,6 +38,7 @@ public class MainLayout extends AppLayout {
         viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
 
         addToNavbar(true, toggle, viewTitle);
+
     }
 
     private void addDrawerContent() {

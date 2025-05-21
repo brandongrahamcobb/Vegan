@@ -5,7 +5,7 @@ import java.util.List;
 
 public record OrderResponse(
     Long orderId,
-    Long customerId,
+    Long veganId,
     Instant orderDate,
     String status,
     List<OrderLineResponse> items

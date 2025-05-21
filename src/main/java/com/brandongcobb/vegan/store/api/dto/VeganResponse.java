@@ -1,6 +1,6 @@
 package com.brandongcobb.vegan.store.api.dto;
 
-public record CustomerResponse(
+public record VeganResponse(
     Long id,
     String firstName,
     String lastName,

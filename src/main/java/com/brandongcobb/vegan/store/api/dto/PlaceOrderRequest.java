@@ -5,8 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 public record PlaceOrderRequest(
-    @NotNull(message = "Customer ID is required")
-    Long customerId,
+    @NotNull(message = "Vegan ID is required")
+    Long veganId,
     @NotEmpty(message = "Order must contain at least one item")
     List<OrderLineRequest> items
 ) {}

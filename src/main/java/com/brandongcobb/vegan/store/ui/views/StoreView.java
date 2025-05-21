@@ -5,7 +5,7 @@ import com.brandongcobb.vegan.store.api.dto.OrderLineRequest;
 import com.brandongcobb.vegan.store.api.dto.PlaceOrderRequest;
 import com.brandongcobb.vegan.store.api.dto.OrderResponse;
 import com.brandongcobb.vegan.store.domain.Product;
-import com.brandongcobb.vegan.store.repo.CustomerRepository;
+import com.brandongcobb.vegan.store.repo.VeganRepository;
 import com.brandongcobb.vegan.store.service.OrderService;
 import com.brandongcobb.vegan.store.service.StoreService;
 import com.vaadin.flow.component.button.Button;
@@ -33,7 +33,7 @@ import com.brandongcobb.vegan.store.api.dto.OrderLineRequest;
 import com.brandongcobb.vegan.store.api.dto.PlaceOrderRequest;
 import com.brandongcobb.vegan.store.api.dto.OrderResponse;
 import com.brandongcobb.vegan.store.domain.Product;
-import com.brandongcobb.vegan.store.repo.CustomerRepository;
+import com.brandongcobb.vegan.store.repo.VeganRepository;
 import com.brandongcobb.vegan.store.service.OrderService;
 import com.brandongcobb.vegan.store.service.StoreService;
 import com.brandongcobb.vegan.store.service.CartService;
@@ -79,7 +79,6 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.theme.lumo.LumoUtility.Gap;
-
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
@@ -111,7 +110,7 @@ public class StoreView extends Composite<VerticalLayout> implements BeforeEnterO
     private final StoreService      storeService;
     private final CartService       cartService;
     private final OrderService      orderService;
-    private final CustomerRepository customerRepo;
+    private final VeganRepository veganRepo;
     
     // local snapshot
     private final Map<Product,Integer> cartSnapshot = new LinkedHashMap<>();
@@ -135,17 +134,17 @@ public class StoreView extends Composite<VerticalLayout> implements BeforeEnterO
     public StoreView(StoreService storeService,
                      CartService cartService,
                      OrderService orderService,
-                     CustomerRepository customerRepo) {
+                     VeganRepository veganRepo) {
         this.storeService   = storeService;
         this.cartService    = cartService;
         this.orderService   = orderService;
-        this.customerRepo   = customerRepo;
+        this.veganRepo   = veganRepo;
         
         // --- build header ---
         title.addClassName(Gap.MEDIUM);
         
         // search box
-        search.setPlaceholder("Search products…");
+        search.setPlaceholder("Search the project…");
         search.setClearButtonVisible(true);
         search.getStyle().set("width", "800px");
         search.addValueChangeListener(e -> refreshCatalog(e.getValue()));
@@ -158,31 +157,28 @@ public class StoreView extends Composite<VerticalLayout> implements BeforeEnterO
         // cart button + dropdown
         
         cartDropdown.addClassName("cart-dropdown");
-        cartDropdown.getStyle().set("position","absolute")
-        .set("background","white")
-        .set("border","1px solid #bbb")
-        .set("padding","1em")
-        .set("display","none");
+        cartDropdown.getStyle()
+            .set("position", "absolute")
+            .set("top", "100%") // Position below the button
+            .set("left", "0")
+            .set("background", "white")
+            .set("border", "1px solid #bbb")
+            .set("padding", "1em")
+            .set("min-width", "200px") // Ensure it’s clickable area
+            .set("z-index", "1000")
+            .set("display", "none");
+
+        // Wrap both in a relative container
         Div cartContainer = new Div(cartBtn, cartDropdown);
         cartContainer.getStyle().set("position", "relative");
-        cartContainer.addClassName("cart-container");
-        cartContainer.getElement().addEventListener("mouseenter", ev -> {
-            cartDropdown.getStyle().set("display", "block");
-        });
-        cartContainer.getElement().addEventListener("mouseleave", ev -> {
-            cartDropdown.getStyle().set("display", "none");
-        });
-        cartBtn.getElement().addEventListener("mouseenter", ev -> {
-            cartDropdown.getStyle().set("display", "block");
-        });
 
-        cartDropdown.getElement().addEventListener("mouseenter", ev -> {
+        // Show on hover over the container (button or dropdown)
+        cartContainer.getElement().addEventListener("mouseenter", e -> {
             cartDropdown.getStyle().set("display", "block");
         });
-        cartDropdown.getElement().addEventListener("mouseleave", ev -> {
+        cartContainer.getElement().addEventListener("mouseleave", e -> {
             cartDropdown.getStyle().set("display", "none");
         });
-        
 
         cartBtn.addClickListener(e -> UI.getCurrent().navigate("checkout"));
         
@@ -197,9 +193,10 @@ public class StoreView extends Composite<VerticalLayout> implements BeforeEnterO
         avatarItem.getElement().addEventListener("mouseleave", ev -> accountDropdown.getStyle().set("display","none"));
         accountDropdown.getElement().addEventListener("mouseleave", ev -> accountDropdown.getStyle().set("display","none"));
         avatarItem.getContent().addClickListener(e -> UI.getCurrent().navigate("account"));
+        DIV avatarContainer = new Div(avatarItem, accountDropdown);
         
         // put header pieces into a row
-        HorizontalLayout header = new HorizontalLayout(title, search, menu, new Div(cartBtn, cartDropdown), new Div(avatarItem, accountDropdown));
+        HorizontalLayout header = new HorizontalLayout(title, search, menu, cartContainer, avatarContainer);
         header.setWidthFull();
         header.expand(title, menu);
         header.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -211,7 +208,7 @@ public class StoreView extends Composite<VerticalLayout> implements BeforeEnterO
         configureCartGrid();
         
         checkout.addClickListener(e -> UI.getCurrent().navigate("checkout"));
-        account.addClickListener(e -> UI.getCurrent().navigate("account"));
+        accountContainer.addClickListener(e -> UI.getCurrent().navigate("account"));
         HorizontalLayout actions = new HorizontalLayout(account, checkout);
         
         SplitLayout split = new SplitLayout(catalog, new VerticalLayout());
@@ -227,7 +224,7 @@ public class StoreView extends Composite<VerticalLayout> implements BeforeEnterO
             .set("z-index", "9999");
 
         //botIcon.addClickListener(e -> openAssistantOverlay());
-
+        //getContent().getStyle().set("overflow", "visible");
         getContent().add(botIcon);
         getContent().add(split);
         getContent().setSizeFull();
@@ -321,7 +318,7 @@ public class StoreView extends Composite<VerticalLayout> implements BeforeEnterO
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth!=null && auth.isAuthenticated()) {
             String email = auth.getName();
-            customerRepo.findByEmail(email).ifPresent(c -> {
+            veganRepo.findByEmail(email).ifPresent(c -> {
                 String full = c.getFirstName()+" "+c.getLastName();
                 Avatar avatar = new Avatar(full);
                 avatarItem.setAvatar(avatar);
