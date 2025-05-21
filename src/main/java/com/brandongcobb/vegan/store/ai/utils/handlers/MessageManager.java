@@ -1,4 +1,4 @@
-package com.brandongcobb.vegan.store.ai;
+package com.brandongcobb.vegan.store.ai.utils.handlers;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;

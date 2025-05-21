@@ -46,9 +46,9 @@
                                      <artifactId>spring-ai-mcp-server-spring-boot-starter</artifactId>
                                  </dependency>
                                  <dependency>
-                                     <groupId>com.brandongcobb</groupId>
-                                     <artifactId>vyrtuous</artifactId>
-                                     <version>0.1</version>
+                                     <groupId>org.apache.httpcomponents</groupId>
+                                     <artifactId>httpclient</artifactId>
+                                     <version>4.5.13</version>
                                  </dependency>
                                  <dependency>
                                      <groupId>com.brandongcobb</groupId>
