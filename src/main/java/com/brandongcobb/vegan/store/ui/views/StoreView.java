@@ -1,9 +1,11 @@
 package com.brandongcobb.vegan.store.ui.views;
 import com.brandongcobb.vegan.store.ui.views.*;
 import com.brandongcobb.vegan.store.ui.layouts.*;
+import com.brandongcobb.vegan.store.ai.*;
 import com.brandongcobb.vegan.store.api.dto.OrderLineRequest;
 import com.brandongcobb.vegan.store.api.dto.PlaceOrderRequest;
 import com.brandongcobb.vegan.store.api.dto.OrderResponse;
+import com.vaadin.flow.server.VaadinSession;
 import com.brandongcobb.vegan.store.domain.Product;
 import com.brandongcobb.vegan.store.repo.VeganRepository;
 import com.brandongcobb.vegan.store.service.OrderService;
@@ -29,6 +31,7 @@ import java.util.Map;
 import com.brandongcobb.vegan.store.service.CartService;
 import com.brandongcobb.vegan.store.ui.layouts.*;
 import com.brandongcobb.vegan.store.ui.base.*;
+import com.brandongcobb.vyrtuous.utils.handlers.AIManager;
 import com.brandongcobb.vegan.store.api.dto.OrderLineRequest;
 import com.brandongcobb.vegan.store.api.dto.PlaceOrderRequest;
 import com.brandongcobb.vegan.store.api.dto.OrderResponse;
@@ -215,22 +218,47 @@ public class StoreView extends Composite<VerticalLayout> implements BeforeEnterO
         SplitLayout split = new SplitLayout(catalog, new VerticalLayout());
         split.setSizeFull();
         split.setSplitterPosition(70);
-        Image botIcon = new Image("/images/assistant.svg", "AI Assistant");
-        botIcon.getStyle()
-            .set("position", "fixed")
-            .set("bottom", "24px")
-            .set("right", "24px")
-            .set("width", "64px")
-            .set("cursor", "pointer")
-            .set("z-index", "9999");
-
-        //botIcon.addClickListener(e -> openAssistantOverlay());
-        //getContent().getStyle().set("overflow", "visible");
-        getContent().add(botIcon);
         getContent().add(split);
+        Div botPopup = new Div();
+        botPopup.getStyle()
+                .set("position", "fixed")
+                .set("bottom", "100px")
+                .set("right", "24px")
+                .set("width", "300px")
+                .set("background", "rgba(255,255,255,0.9)")
+                .set("border-radius", "10px")
+                .set("box-shadow", "0 4px 16px rgba(0,0,0,0.2)")
+                .set("padding", "12px")
+                .set("display", "none")
+                .set("z-index", "10001");
+        VerticalLayout messages = new VerticalLayout();
+        TextField userInput = new TextField();
+        userInput.setPlaceholder("Ask me something...");
+        Button send = new Button("Send");
+        send.addClickListener(click -> {
+            String input = userInput.getValue();
+            if (!input.isBlank()) {
+                MessageManager mm = new MessageManager();
+                Long userId = (Long) VaadinSession.getCurrent().getAttribute("userId");
+                AIManager aim = new AIManager();
+                aim.handleAI(input, userId).thenAccept(response -> {// ideally inject this with @Autowired
+                    getUI().ifPresent(ui -> ui.access(() -> {
+                        messages.add(new Span("🤖 " + response));
+                    }));
+                });
+                messages.add(new Span("🧑 " + input));
+                userInput.clear();
+            }
+        });
+        botPopup.add(messages, userInput, send);
+        getContent().add(botPopup);
+
+//        .addClickListener(e -> {
+//            botPopup.getStyle().set("display", botPopup.getStyle().get("display").equals("none") ? "block" : "none");
+//        });
         getContent().setSizeFull();
     }
-    
+
     private void refreshCatalog(String filter) {
         catalog.removeAll();  // if `catalog` is a Composite, otherwise just catalog.removeAll()
         String ctx = com.vaadin.flow.server.VaadinServletRequest.getCurrent().getContextPath();
@@ -312,25 +340,26 @@ public class StoreView extends Composite<VerticalLayout> implements BeforeEnterO
             cartDropdown.add(new Button("Go to Checkout", e -> UI.getCurrent().navigate("checkout")));
         }
     }
-    
+
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         // sync avatar with logged‐in user
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth!=null && auth.isAuthenticated()) {
             String email = auth.getName();
-            veganRepo.findByEmail(email).ifPresent(c -> {
-                String full = c.getFirstName()+" "+c.getLastName();
+            veganRepo.findByEmail(email).ifPresent(v -> {
+                String full = v.getFirstName()+" "+v.getLastName();
+                VaadinSession.getCurrent().setAttribute("userId", v.getId());
                 Avatar avatar = new Avatar(full);
                 avatarItem.setAvatar(avatar);
                 avatarItem.setHeading(full);
-                avatarItem.setDescription(c.getEmail());
+                avatarItem.setDescription(v.getEmail());
             });
         }
         // populate content
         refreshCatalog(null);
         refreshCartGrid();
-        
+
         accountDropdown.removeAll();
         accountDropdown.add(
                             new Button("My Account",  e -> UI.getCurrent().navigate("account")),
@@ -339,6 +368,6 @@ public class StoreView extends Composite<VerticalLayout> implements BeforeEnterO
                                        .executeJs("fetch('/logout',{method:'POST'}).then(_=>location.href='/login')"))
                             );
     }
-    
+
     private record CartItem(Product product, int quantity) {}
 }
