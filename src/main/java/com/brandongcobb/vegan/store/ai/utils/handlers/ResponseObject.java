@@ -18,12 +18,11 @@
  */
 package com.brandongcobb.vegan.store.ai.utils.handlers;
 
-import com.brandongcobb.metadata.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.brandongcobb.metadata.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 import java.util.HashMap;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -31,14 +30,8 @@ import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 
 public class ResponseObject extends MetadataContainer{
-    
-    private static final MetadataType<List<String>> LIST = new MetadataList(Metadata.STRING);
-    public static final MetadataKey<String> FILESEARCHTOOL_TYPE = new MetadataKey<>("filesearchtool_type", Metadata.STRING);
-    public static final MetadataKey<List<String>> FILESEARCHTOOL_VECTOR_STORE_IDS = new MetadataKey<>("filesearchtool_vector_store_ids", Metadata.LIST_STRING);
-    public static final MetadataKey<Map<String, Object>> FILESEARCHTOOL_FILTERS = new MetadataKey<>("filesearchtool_filters", Metadata.MAP);
-    public static final MetadataKey<Integer> FILESEARCHTOOL_MAX_NUM_RESULTS = new MetadataKey<>("filesearchtool_max_num_results", Metadata.INTEGER);
-    public static final MetadataKey<Map<String, Object>> FILESEARCHTOOL_RANKING_OPTIONS = new MetadataKey<>("filesearchtool_ranking_options", Metadata.MAP);
 
+    
     public ResponseObject(Map<String, Object> responseMap) {
         MetadataKey<String> idKey = new MetadataKey<>("id", Metadata.STRING);
         String requestId = (String) responseMap.get("id");
@@ -259,24 +252,12 @@ public class ResponseObject extends MetadataContainer{
             MetadataKey<Map<String, Object>> responsesTextFormatKey = new MetadataKey<>("text_format", Metadata.MAP);
             Map<String, Object> responsesTextFormat = (Map<String, Object>) responseMap.get("text");
             put(responsesTextFormatKey, responsesTextFormat);
-            MetadataKey<List<Map<String, Object>>> toolsKey = new MetadataKey<>("tools", LIST);
-            List<Map<String, Object>> toolsList = (List<Map<String, Object>>) responseMap.get("tools");
-            put(toolsKey, toolsList);
-            if (responseMap.containsKey("type")) {
-                put(FILESEARCHTOOL_TYPE, String.valueOf(responseMap.get("type")));
-            }
-            if (responseMap.containsKey("vector_store_ids")) {
-                put(FILESEARCHTOOL_VECTOR_STORE_IDS, (List<String>) responseMap.get("vector_store_ids"));
-            }
-            if (responseMap.containsKey("filters")) {
-                put(FILESEARCHTOOL_FILTERS, (Map<String, Object>) responseMap.get("filters"));
-            }
-            if (responseMap.containsKey("max_num_results")) {
-                put(FILESEARCHTOOL_MAX_NUM_RESULTS, (Integer) responseMap.get("max_num_results"));
-            }
-            if (responseMap.containsKey("ranking_options")) {
-                put(FILESEARCHTOOL_RANKING_OPTIONS, (Map<String, Object>) responseMap.get("ranking_options"));
-            }
+            MetadataKey<String> responsesToolChoiceKey = new MetadataKey<>("tool_choice", Metadata.STRING);
+            String responsesToolChoice = (String) responseMap.get("tool_choice");
+            put(responsesToolChoiceKey, responsesToolChoice);
+            MetadataKey<List<String>> responsesToolsKey = new MetadataKey<>("tools", Metadata.LIST_STRING);
+            List<String> responsesTools = (List<String>) responseMap.get("tools");
+            put(responsesToolsKey, responsesTools);
             MetadataKey<Double> responsesTopPKey = new MetadataKey<>("top_p", Metadata.DOUBLE);
             Double responsesTopP = (Double) responseMap.get("top_p");
             put(responsesTopPKey, responsesTopP);
@@ -320,66 +301,11 @@ public class ResponseObject extends MetadataContainer{
     /*
      *    Getters
      */
-    public CompletableFuture<String> completeGetFileSearchToolType() {
-        return CompletableFuture.completedFuture(this.get(FILESEARCHTOOL_TYPE));
-    }
-
-    public CompletableFuture<List<String>> completeGetFileSearchToolVectorStoreIds() {
-        return CompletableFuture.completedFuture(this.get(FILESEARCHTOOL_VECTOR_STORE_IDS));
-    }
-
-    public CompletableFuture<Map<String, Object>> completeGetFileSearchToolFilters() {
-        return CompletableFuture.completedFuture(this.get(FILESEARCHTOOL_FILTERS));
-    }
-
-    public CompletableFuture<Integer> completeGetFileSearchToolMaxNumResults() {
-        return CompletableFuture.completedFuture(this.get(FILESEARCHTOOL_MAX_NUM_RESULTS));
-    }
-
-    public CompletableFuture<Map<String, Object>> completeGetFileSearchToolRankingOptions() {
-        return CompletableFuture.completedFuture(this.get(FILESEARCHTOOL_RANKING_OPTIONS));
-    }
-    
     public CompletableFuture<Boolean> completeGetFlagged() {
         return CompletableFuture.supplyAsync(() -> {
             MetadataKey<Boolean> flaggedKey = new MetadataKey<>("flagged", Metadata.BOOLEAN);
             Object flaggedObj = this.get(flaggedKey);
             return flaggedObj != null && Boolean.parseBoolean(String.valueOf(flaggedObj));
-        });
-    }
-
-    public CompletableFuture<String> completeGetToolChoice() {
-        return CompletableFuture.supplyAsync(() -> {
-            MetadataKey<String> toolChoiceKey = new MetadataKey<>("tool_choice", Metadata.STRING);
-            Object toolChoiceObj = this.get(toolChoiceKey);
-            return toolChoiceObj != null ? String.valueOf(toolChoiceObj) : null;
-        });
-    }
-
-    public CompletableFuture<List<Map<String, Object>>> completeGetTools() {
-        return CompletableFuture.supplyAsync(() -> {
-            MetadataKey<List<Map<String, Object>>> toolsKey = new MetadataKey<>("tools", LIST);
-            Object toolsObj = this.get(toolsKey);
-            if (toolsObj instanceof List) {
-                return (List<Map<String, Object>>) toolsObj;
-            } else {
-                return Collections.emptyList();
-            }
-        });
-    }
-
-    public CompletableFuture<Map<String, Object>> completeGetToolByName(String toolName) {
-        return completeGetTools().thenApply(tools -> {
-            for (Map<String, Object> tool : tools) {
-                Object functionObj = tool.get("function");
-                if (functionObj instanceof Map) {
-                    Map<String, Object> functionMap = (Map<String, Object>) functionObj;
-                    if (toolName.equals(functionMap.get("name"))) {
-                        return tool;
-                    }
-                }
-            }
-            return null;
         });
     }
 
