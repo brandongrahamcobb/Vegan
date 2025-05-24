@@ -1,5 +1,5 @@
 package com.brandongcobb.vegan.store.ui.views;
-import com.brandongcobb.vegan.store.ai.utils.handlers.MessageManager;
+
 import com.vaadin.flow.server.VaadinSession;
 import com.brandongcobb.vegan.store.domain.Product;
 import com.brandongcobb.vegan.store.repo.VeganRepository;
@@ -20,7 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import com.brandongcobb.vegan.store.service.CartService;
-import com.brandongcobb.vegan.store.ai.utils.handlers.AIManager;
+
 import com.vaadin.flow.router.BeforeEnterObserver;
 
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -176,21 +176,15 @@ public class StoreView extends Composite<VerticalLayout> implements BeforeEnterO
 
         VerticalLayout messages = new VerticalLayout();
         TextField userInput = new TextField();
-        userInput.setPlaceholder("Ask me something...");
+        userInput.setPlaceholder("Speak into the void...");
         Button send = new Button("Send");
 
         send.addClickListener(click -> {
             String input = userInput.getValue();
             if (!input.isBlank()) {
-                messages.add(new Span("🧑 " + input));
+                messages.add(new Span("👽" + input));
                 userInput.clear();
                 Long userId = (Long) VaadinSession.getCurrent().getAttribute("userId");
-                new AIManager().handleAI(input, userId).thenAccept(response -> {
-                    System.out.println(response);
-                    getUI().ifPresent(ui -> ui.access(() -> {
-                        messages.add(new Span("🤖 " + response));
-                    }));
-                });
             }
         });
 
