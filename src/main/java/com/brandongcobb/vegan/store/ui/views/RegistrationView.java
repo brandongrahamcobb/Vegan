@@ -25,6 +25,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.stereotype.Component;
+import com.vaadin.flow.component.Key;
 
 @Route("register")
 @PageTitle("Register | Vegan Store")
@@ -103,6 +104,7 @@ public class RegistrationView extends Composite<VerticalLayout>{ //} extends Vie
         .bind(RegistrationForm::getConfirmPassword, RegistrationForm::setConfirmPassword);
         
         register.addClickListener(e -> signUp());
+        register.addClickShortcut(Key.ENTER);
         
         // Wrap form + buttons in a 'card' container
         Div card = new Div();

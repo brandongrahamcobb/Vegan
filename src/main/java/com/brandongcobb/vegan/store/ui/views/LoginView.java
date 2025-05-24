@@ -11,6 +11,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.springframework.stereotype.Component;
+import com.vaadin.flow.component.Key;
 /**
  * A login view rendered by Spring Security if the user is not authenticated.
  */
