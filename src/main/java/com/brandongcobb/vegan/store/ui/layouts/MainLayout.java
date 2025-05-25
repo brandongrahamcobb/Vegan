@@ -85,14 +85,23 @@ public class MainLayout extends AppLayout {
 
         search.setPlaceholder("Search the project…");
         search.setClearButtonVisible(true);
-        search.getStyle().set("width", "1000px");
+        search.setWidthFull();
 
-        HorizontalLayout headerRow = new HorizontalLayout(toggle, logo, search, avatarContainer);
+        HorizontalLayout leftSection = new HorizontalLayout(toggle, logo);
+            leftSection.setAlignItems(FlexComponent.Alignment.CENTER);
+        HorizontalLayout centerSection = new HorizontalLayout(search);
+        centerSection.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        centerSection.setWidth("100%");
+        centerSection.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        HorizontalLayout rightSection = new HorizontalLayout(avatarContainer);
+        rightSection.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        HorizontalLayout headerRow = new HorizontalLayout(leftSection, centerSection, rightSection);
         headerRow.setWidthFull();
         headerRow.setAlignItems(FlexComponent.Alignment.CENTER);
-        headerRow.expand(title);
+        headerRow.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         headerRow.setSpacing(true);
-
         addToNavbar(headerRow);
     }
 

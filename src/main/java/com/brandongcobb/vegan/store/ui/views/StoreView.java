@@ -67,8 +67,8 @@ public class StoreView extends Composite<VerticalLayout> implements BeforeEnterO
         cartDropdown.addClassName("cart-dropdown");
         cartDropdown.getStyle()
                 .set("position", "absolute")
-                .set("top", "100%")
-                .set("left", "0")
+                .set("bottom", "100%")
+                .set("right", "0")
                 .set("background", "white")
                 .set("border", "1px solid #bbb")
                 .set("padding", "1em")
@@ -79,7 +79,7 @@ public class StoreView extends Composite<VerticalLayout> implements BeforeEnterO
         Div cartContainer = new Div(cartBtn, cartDropdown);
         cartContainer.getStyle()
                 .set("position", "fixed")
-                .set("top", "16px")
+                .set("bottom", "16px")
                 .set("right", "16px")
                 .set("z-index", "10000");
 
@@ -97,51 +97,51 @@ public class StoreView extends Composite<VerticalLayout> implements BeforeEnterO
         catalog.setSizeFull();
 
         // --- Bot assistant ---
-        Image botIcon = new Image("/images/assistant.svg", "AI Assistant");
-        botIcon.getStyle()
-                .set("position", "fixed")
-                .set("bottom", "24px")
-                .set("right", "24px")
-                .set("width", "64px")
-                .set("cursor", "pointer")
-                .set("z-index", "10000");
-
-        Div botPopup = new Div();
-        botPopup.getStyle()
-                .set("position", "fixed")
-                .set("bottom", "100px")
-                .set("right", "24px")
-                .set("width", "300px")
-                .set("background", "rgba(255,255,255,0.9)")
-                .set("border-radius", "10px")
-                .set("box-shadow", "0 4px 16px rgba(0,0,0,0.2)")
-                .set("padding", "12px")
-                .set("display", "none")
-                .set("z-index", "10001");
-
-        VerticalLayout messages = new VerticalLayout();
-        TextField userInput = new TextField();
-        userInput.setPlaceholder("Speak into the void...");
-        Button send = new Button("Send");
-
-        send.addClickListener(click -> {
-            String input = userInput.getValue();
-            if (!input.isBlank()) {
-                messages.add(new Span("👽 " + input));
-                userInput.clear();
-                Long userId = (Long) VaadinSession.getCurrent().getAttribute("userId");
-                // TODO: Integrate AI backend here
-            }
-        });
-
-        botPopup.add(messages, userInput, send);
-        botIcon.addClickListener(e -> {
-            boolean visible = "block".equals(botPopup.getStyle().get("display"));
-            botPopup.getStyle().set("display", visible ? "none" : "block");
-        });
+//        Image botIcon = new Image("/images/assistant.svg", "AI Assistant");
+//        botIcon.getStyle()
+//                .set("position", "fixed")
+//                .set("bottom", "24px")
+//                .set("right", "24px")
+//                .set("width", "64px")
+//                .set("cursor", "pointer")
+//                .set("z-index", "10000");
+//
+//        Div botPopup = new Div();
+//        botPopup.getStyle()
+//                .set("position", "fixed")
+//                .set("bottom", "100px")
+//                .set("right", "24px")
+//                .set("width", "300px")
+//                .set("background", "rgba(255,255,255,0.9)")
+//                .set("border-radius", "10px")
+//                .set("box-shadow", "0 4px 16px rgba(0,0,0,0.2)")
+//                .set("padding", "12px")
+//                .set("display", "none")
+//                .set("z-index", "10001");
+//
+//        VerticalLayout messages = new VerticalLayout();
+//        TextField userInput = new TextField();
+//        userInput.setPlaceholder("Speak into the void...");
+//        Button send = new Button("Send");
+//
+//        send.addClickListener(click -> {
+//            String input = userInput.getValue();
+//            if (!input.isBlank()) {
+//                messages.add(new Span("👽 " + input));
+//                userInput.clear();
+//                Long userId = (Long) VaadinSession.getCurrent().getAttribute("userId");
+//                // TODO: Integrate AI backend here
+//            }
+//        });
+//
+//        botPopup.add(messages, userInput, send);
+//        botIcon.addClickListener(e -> {
+//            boolean visible = "block".equals(botPopup.getStyle().get("display"));
+//            botPopup.getStyle().set("display", visible ? "none" : "block");
+//        });
 
         // --- Add components to view ---
-        root.add(cartContainer, catalog, botIcon, botPopup);
+        root.add(cartContainer, catalog);//, botIcon, botPopup);
     }
 
     private void refreshCatalog(String filter) {

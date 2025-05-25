@@ -13,8 +13,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.brandongcobb.vegan.store.ui.base.*;
+import com.brandongcobb.vegan.store.ui.layouts.*;
 
-@Route("account")
+@Route(value = "account", layout = MainLayout.class)
 @PageTitle("My Account | The Vyrtuous Project")
 public class VeganView extends Composite<VerticalLayout> {
     public VeganView() {

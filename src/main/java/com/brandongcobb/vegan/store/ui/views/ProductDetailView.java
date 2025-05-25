@@ -9,6 +9,7 @@ package com.brandongcobb.vegan.store.ui.views;
 import com.brandongcobb.vegan.store.ui.views.*;
 import com.brandongcobb.vegan.store.domain.Product;
 import com.brandongcobb.vegan.store.service.*;
+import com.brandongcobb.vegan.store.ui.layouts.*;
 import com.brandongcobb.vegan.store.ui.components.*;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.*;
@@ -47,7 +48,7 @@ import com.brandongcobb.vegan.store.ui.base.*;
 import org.springframework.stereotype.Component;
 
 
-@Route("product/:productId")
+@Route(value = "product/:productId", layout = MainLayout.class)
 @PageTitle("Product Details | Vegan Store")
 public class ProductDetailView extends Composite<VerticalLayout> {
 
