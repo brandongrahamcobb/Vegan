@@ -8,11 +8,13 @@
         <outputRelativeToContentRoot value="true" />
         <module name="vegan-store" />
         <module name="VegBench" />
+        <module name="vegan" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="vegan" options="-parameters" />
       <module name="vegan-store" options="-parameters" />
     </option>
   </component>
