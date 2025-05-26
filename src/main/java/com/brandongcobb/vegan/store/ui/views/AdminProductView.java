@@ -146,14 +146,16 @@ public class AdminProductView extends View {
 
         upload.setAcceptedFileTypes("image/png","image/jpeg");
         upload.addSucceededListener(evt -> {
-            if (currentProduct == null || currentProduct.getId() == null) {
-                Notification.show("Please save the product before uploading an image", 3000, Notification.Position.MIDDLE);
-                return;
+            if (currentProduct != null && currentProduct.getImages() != null && !currentProduct.getImages().isEmpty()) {
+                ProductGallery gallery = new ProductGallery(
+                    currentProduct.getImages().stream().map(img -> img.getUrl()).toList()
+                );
+                galleryContainer.add(gallery);
             }
             String filename = evt.getFileName();
             try (InputStream is = buffer.getInputStream()) {
                 String url = storageService.store(filename, is);
-                service.addProductImage(currentProduct.getId(), url);
+                service.addImage(currentProduct.getId(), url);
                 Notification.show("Image added", 2000, Notification.Position.MIDDLE);
                 displayGallery();  // new method to refresh gallery
             } catch (Exception ex) {
@@ -199,9 +201,9 @@ public class AdminProductView extends View {
         formContainer.add(galleryContainer);
 
         grid.addComponentColumn(p -> {
-            String src = p.getImageUrl() != null
-                ? p.getImageUrl()
-                : "frontend/images/placeholder.png";  // put your placeholder here
+            String src = (p.getImages() != null && !p.getImages().isEmpty())
+                ? p.getImages().get(0).getUrl()
+                : "frontend/images/placeholder.png";
             Image img = new Image(src, p.getName());
             img.setHeight("50px");
             return img;

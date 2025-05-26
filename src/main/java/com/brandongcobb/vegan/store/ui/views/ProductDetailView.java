@@ -108,15 +108,21 @@ public class ProductDetailView extends Composite<VerticalLayout> {
 
         VerticalLayout thumbs = new VerticalLayout();
         thumbs.setSpacing(false);
-        Image mainImage = new Image(safeImageUrl(product.getImageUrl()), product.getName());
-        product.getImageUrls().forEach(url -> {
+        Image mainImage = new Image(
+            product.getImages().isEmpty()
+                ? "frontend/images/placeholder.png"
+                : product.getImages().get(0).getUrl(),
+            product.getName()
+        );      
+        product.getImages().forEach(image -> {
+            String url = safeImageUrl(image.getUrl());
             Image thumb = new Image(url, "Thumbnail");
             thumb.setWidth("50px");
             thumb.setHeight("50px");
             thumb.getStyle().set("cursor", "pointer")
                 .set("border", "1px solid #ddd")
                 .set("margin-bottom", "6px");
-            thumb.addClickListener(e -> mainImage.setSrc(safeImageUrl(url)));
+            thumb.addClickListener(e -> mainImage.setSrc(url));
             thumbs.add(thumb);
         });
 

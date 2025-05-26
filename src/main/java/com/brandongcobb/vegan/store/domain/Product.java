@@ -10,12 +10,23 @@ import java.util.ArrayList;
 @Table(name = "products")
 public class Product {
 
-    @Column(name="image_url", length=1000)
-    private String imageUrl;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<ProductImage> images = new ArrayList<>();
+
+    public List<ProductImage> getImages() {
+        return images;
+    }
+
+    public void addImage(String imageUrl) {
+        ProductImage image = new ProductImage();
+        image.setUrl(imageUrl);
+        image.setProduct(this);
+        this.images.add(image);
+    }
 
     @Column(nullable = false, length = 150)
     private String name;
@@ -60,9 +71,6 @@ public class Product {
     @Column(name = "date_added")
     private LocalDate dateAdded;
     
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<ProductImage> images = new ArrayList<>();
-
     // --- Constructors ---
 
     public Product() { }
@@ -78,14 +86,6 @@ public class Product {
     }
 
     // --- Getters and Setters ---
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
 
     public Long getId() {
         return id;
@@ -205,17 +205,31 @@ public class Product {
     public void setDateAdded(LocalDate dateAdded) {
         this.dateAdded = dateAdded;
     }
-    
-    public List<String> getImageUrls() {
-        return images.stream().map(ProductImage::getUrl).toList();
+ 
+    public ProductImage getThumbnail() {
+        return images != null && !images.isEmpty() ? images.get(0) : null;
     }
 
-    public void addImage(String url) {
-        this.images.add(new ProductImage(url, this));
+    public List<String> getImageUrls() {
+        return images == null ? List.of() :
+               images.stream().map(ProductImage::getUrl).toList();
     }
     
     @Override
     public String toString() {
         return String.format("%s (%.2f) [%d in stock]", name, price, stock);
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Product product = (Product) o;
+        return id != null && id.equals(product.id); // or whatever unique identifier you use
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
 }

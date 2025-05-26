@@ -2,6 +2,7 @@ package com.brandongcobb.vegan.store.service;
 
 import com.brandongcobb.vegan.store.domain.Category;
 import com.brandongcobb.vegan.store.domain.Product;
+import com.brandongcobb.vegan.store.domain.ProductImage;
 import com.brandongcobb.vegan.store.repo.CategoryRepository;
 import com.brandongcobb.vegan.store.repo.ProductRepository;
 import org.springframework.stereotype.Service;
@@ -73,11 +74,15 @@ public class StoreService {
         productRepo.deleteById(id);
     }
     
-    public void addProductImage(Long productId, String imageUrl) {
-        Product product = productRepo.findProductWithImagesById(productId).orElseThrow();
-        product.addImage(imageUrl);
-        productRepo.save(product);
-    }
+    public void addImage(Long productId, String imageUrl) {
+        Optional<Product> opt = transactFindProductById(productId);
+        if (opt.isEmpty()) return;
+        
+        Product product = opt.get();
+        product.addImage(imageUrl); // This assumes your Product class has a method called addImage(String)
+        saveProduct(product);
+    }    
+    
     
     @Transactional
     public Optional<Product> transactFindProductById(Long id) {
