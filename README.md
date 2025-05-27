@@ -1,0 +1,721 @@
+# Vegan Store Application                                                     
+                                                                              
+                                                                              
+                                                                              
+This document provides a comprehensive overview of the Vegan Store            
+application's architecture, focusing on its organization, key components, and 
+design principles. It aims to serve as a guide for understanding the codebase 
+and facilitating future development.                                          
+                                                                              
+                                                                              
+                                                                              
+## Table of Contents                                                          
+                                                                              
+                                                                              
+                                                                              
+1.  [Project Structure](#1-project-structure)                                 
+                                                                              
+2.  [Core Concepts & Design Principles](#2-core-concepts--design-principles)  
+                                                                              
+    *   [Layered Architecture](#layered-architecture)                         
+                                                                              
+    *   [Separation of Concerns](#separation-of-concerns)                     
+                                                                              
+    *   [Vaadin UI Best Practices](#vaadin-ui-best-practices)                 
+                                                                              
+3.  [Key Packages and Their                                                   
+Responsibilities](#3-key-packages-and-their-responsibilities)                 
+                                                                              
+    *                                                                         
+[`com.brandongcobb.vegan.store.domain`](#combrandongcobbveganstoredomain)     
+                                                                              
+    *   [`com.brandongcobb.vegan.store.repo`](#combrandongcobbveganstorerepo) 
+                                                                              
+    *                                                                         
+[`com.brandongcobb.vegan.store.service`](#combrandongcobbveganstoreservice)   
+                                                                              
+    *                                                                         
+[`com.brandongcobb.vegan.store.api.dto`](#combrandongcobbveganstoreapidto)    
+                                                                              
+    *   [`com.brandongcobb.vegan.store.ui`](#combrandongcobbveganstoreui)     
+                                                                              
+    *                                                                         
+[`com.brandongcobb.vegan.store.config`](#combrandongcobbveganstoreconfig)     
+                                                                              
+    *                                                                         
+[`com.brandongcobb.vegan.store.utils`](#combrandongcobbveganstoreutils)       
+(New/Implicit)                                                                
+                                                                              
+4.  [Application Flow (Bird's Eye View)](#4-application-flow-birds-eye-view)  
+                                                                              
+    *   [User Authentication & Session                                        
+Management](#user-authentication--session-management)                         
+                                                                              
+    *   [Product Browsing & Search](#product-browsing--search)                
+                                                                              
+    *   [Shopping Cart Management](#shopping-cart-management)                 
+                                                                              
+    *   [Order Placement & History](#order-placement--history)                
+                                                                              
+    *   [Admin Functionality](#admin-functionality)                           
+                                                                              
+5.  [Development Guidelines](#5-development-guidelines)                       
+                                                                              
+    *   [Adding New Features](#adding-new-features)                           
+                                                                              
+    *   [Troubleshooting](#troubleshooting)                                   
+                                                                              
+                                                                              
+                                                                              
+---                                                                           
+                                                                              
+                                                                              
+                                                                              
+## 1. Project Structure                                                       
+                                                                              
+                                                                              
+                                                                              
+The project follows a standard Spring Boot application structure, with a clear
+separation of concerns into distinct packages.                                
+                                                                              
+
+src/main/java/com/brandongcobb/vegan/store/                                   
+
+├── api/                                                                      
+
+│   └── dto/                  # Data Transfer Objects (DTOs) for API and      
+internal communication                                                        
+
+├── config/                   # Spring and Vaadin configuration classes       
+
+├── domain/                   # JPA Entities (data model)                     
+
+├── repo/                     # Spring Data JPA Repositories (data access     
+layer)                                                                        
+
+├── service/                  # Business Logic Layer (interfaces and          
+implementations)                                                              
+
+│   └── impl/                                                                 
+
+└── ui/                       # Vaadin User Interface components              
+
+                                                                              
+├── base/                 # Base classes for Vaadin views (e.g., common view  
+logic)                                                                        
+                                                                              
+├── components/           # Reusable Vaadin UI components                     
+                                                                              
+├── layouts/              # Vaadin AppLayouts (main application layouts)      
+                                                                              
+├── util/                 # UI-specific utility classes (NEW)                 
+                                                                              
+└── views/                # Vaadin Views (pages of the application)           
+                                                                              
+
+                                                                              
+                                                                              
+                                                                              
+## 2. Core Concepts & Design Principles                                       
+                                                                              
+                                                                              
+                                                                              
+### Layered Architecture                                                      
+                                                                              
+                                                                              
+                                                                              
+The application adheres to a layered architecture, promoting modularity,      
+maintainability, and testability:                                             
+                                                                              
+                                                                              
+                                                                              
+*   **Presentation Layer (`ui`):** Handles user interaction, displays data,   
+and sends commands to the business layer. Built with Vaadin.                  
+                                                                              
+*   **Business Logic Layer (`service`):** Contains the core business rules and
+orchestrates operations across different domains. It interacts with the data  
+access layer.                                                                 
+                                                                              
+*   **Data Access Layer (`repo`):** Provides an abstraction over the          
+persistence mechanism (JPA/Database).                                         
+                                                                              
+*   **Domain Layer (`domain`):** Defines the core entities and their          
+relationships, representing the business concepts.                            
+                                                                              
+                                                                              
+                                                                              
+### Separation of Concerns                                                    
+                                                                              
+                                                                              
+                                                                              
+Each package and class has a well-defined responsibility. This principle is   
+crucial for a robust and understandable codebase:                             
+                                                                              
+                                                                              
+                                                                              
+*   **DTOs (`api.dto`):** Strictly for data transfer between layers or for    
+external API contracts. They do not contain business logic.                   
+                                                                              
+*   **Entities (`domain`):** Represent the database schema and core business  
+objects. They may contain simple getters/setters and utility methods related  
+to their data, but no complex business logic.                                 
+                                                                              
+*   **Repositories (`repo`):** Solely responsible for CRUD operations and data
+retrieval from the database.                                                  
+                                                                              
+*   **Services (`service`):** Encapsulate business logic. A service method    
+should represent a single business operation. They coordinate multiple        
+repositories or other services to fulfill a request. They should be agnostic  
+to the UI technology.                                                         
+                                                                              
+*   **UI Components (`ui`):** Responsible for rendering and user interaction. 
+They should delegate business operations to services and not contain complex  
+business logic themselves. UI-specific utilities are now in `ui.util`.        
+                                                                              
+                                                                              
+                                                                              
+### Vaadin UI Best Practices                                                  
+                                                                              
+                                                                              
+                                                                              
+*   **`Composite<Component>`:** Used for creating reusable UI components and  
+views, encapsulating their internal structure.                                
+                                                                              
+*   **`@Route` and `@PageTitle`:** Define navigation and browser tab titles   
+for views.                                                                    
+                                                                              
+*   **`AppLayout`:** Used for consistent application layouts (e.g.,           
+`MainLayout`, `AdminLayout`).                                                 
+                                                                              
+*   **`BeforeEnterObserver`:** Used in views to perform actions before the    
+view is displayed, such as data loading or redirection based on               
+authentication.                                                               
+                                                                              
+*   **`Binder`:** Used for data binding between UI fields and Java beans,     
+simplifying form management and validation.                                   
+                                                                              
+*   **`Notification`:** For providing user feedback.                          
+                                                                              
+                                                                              
+                                                                              
+## 3. Key Packages and Their Responsibilities                                 
+                                                                              
+                                                                              
+                                                                              
+### `com.brandongcobb.vegan.store.domain`                                     
+                                                                              
+                                                                              
+                                                                              
+Contains the JPA entities that map to database tables. These are the core data
+structures of the application.                                                
+                                                                              
+                                                                              
+                                                                              
+*   `Category`: Represents product categories, supporting a hierarchical      
+structure.                                                                    
+                                                                              
+*   `Order`: Represents a customer order.                                     
+                                                                              
+*   `OrderLine`: Represents a single item within an order.                    
+                                                                              
+*   `Product`: Represents a product available in the store, including extended
+details and images.                                                           
+                                                                              
+*   `ProductImage`: Represents an image associated with a product.            
+                                                                              
+*   `Vegan`: Represents a user/customer of the store.                         
+                                                                              
+*   `OrderStatus`: Enum defining possible states of an order (PENDING,        
+CANCELLED, COMPLETED).                                                        
+                                                                              
+                                                                              
+                                                                              
+**Key Methods/Variables:**                                                    
+                                                                              
+*   `Product.getThumbnail()`: Returns the first image as a thumbnail.         
+                                                                              
+*   `Product.getImageUrls()`: Returns a list of all image URLs for a product. 
+                                                                              
+*   `Category.getFullPath()`: Computes the full path of a category (e.g.,     
+"Electronics / Laptops").                                                     
+                                                                              
+                                                                              
+                                                                              
+### `com.brandongcobb.vegan.store.repo`                                       
+                                                                              
+                                                                              
+                                                                              
+Contains Spring Data JPA repositories. These interfaces extend `JpaRepository`
+and provide standard CRUD operations, plus custom query methods.              
+                                                                              
+                                                                              
+                                                                              
+*   `CategoryRepository`: For `Category` entities. Includes                   
+`findByParentIsNull()` for root categories and `findByParentId()` for         
+subcategories.                                                                
+                                                                              
+*   `OrderLineRepository`: For `OrderLine` entities.                          
+                                                                              
+*   `OrderRepository`: For `Order` entities. Includes `findByVeganId()` to    
+retrieve orders for a specific user.                                          
+                                                                              
+*   `ProductRepository`: For `Product` entities. Includes `@EntityGraph` for  
+eager fetching of images and category (`findProductWithImagesById`).          
+                                                                              
+*   `VeganRepository`: For `Vegan` entities. Includes `findByEmail()` and     
+`existsByEmail()` for user authentication and registration.                   
+                                                                              
+                                                                              
+                                                                              
+### `com.brandongcobb.vegan.store.service`                                    
+                                                                              
+                                                                              
+                                                                              
+This layer contains the business logic. Interfaces define the contracts, and  
+`impl` package contains their implementations. Services are typically         
+`@Transactional`.                                                             
+                                                                              
+                                                                              
+                                                                              
+*   `CartService`: Manages the shopping cart state for the current session.   
+                                                                              
+    *   `addToCart(Product product, int qty)`: Adds/updates product quantity  
+in cart.                                                                      
+                                                                              
+    *   `updateQuantity(Product product, int newQuantity)`: Sets a specific   
+quantity for a product.                                                       
+                                                                              
+    *   `removeFromCart(Product product)`: Removes a product from cart.       
+                                                                              
+    *   `clear()`: Empties the cart.                                          
+                                                                              
+    *   `getCartItems()`: Returns an unmodifiable map of cart contents.       
+                                                                              
+*   `FileStorageService`: Handles file storage (e.g., product images).        
+                                                                              
+    *   `store(String filename, InputStream data)`: Stores a file and returns 
+its public URL.                                                               
+                                                                              
+*   `OrderService`: Handles order-related business operations.                
+                                                                              
+    *   `placeOrder(PlaceOrderRequest request)`: Creates a new order, updates 
+product stock.                                                                
+                                                                              
+    *   `cancelOrder(Long orderId)`: Cancels an order, restores product stock.
+                                                                              
+    *   `listVeganOrders(Long veganId)`: Retrieves orders for a specific user.
+                                                                              
+    *   `getOrder(Long orderId)`: Retrieves a single order by ID.             
+                                                                              
+*   `StoreService`: Manages product and category data.                        
+                                                                              
+    *   `listCategories()`, `findCategoryById()`, `saveCategory()`,           
+`deleteCategoryById()`: Category management.                                  
+                                                                              
+    *   `findAllProducts()`, `saveProduct()`, `deleteProductById()`: Product  
+management.                                                                   
+                                                                              
+    *   `addImage(Long productId, String imageUrl)`: Adds an image URL to a   
+product.                                                                      
+                                                                              
+    *   `transactFindProductById(Long id)`: Finds a product with its images   
+and category eagerly loaded.                                                  
+                                                                              
+    *   `listRootCategories()`, `findSubCategories()`, `listAllCategories()`: 
+Category hierarchy retrieval.                                                 
+                                                                              
+*   `VeganService`: Handles user authentication and registration.             
+                                                                              
+    *   `register(VeganRegistrationRequest request)`: Registers a new user.   
+                                                                              
+    *   `login(VeganLoginRequest request)`: Authenticates a user.             
+                                                                              
+    *   `ensureAdminUserExists()`: (In `impl`) Ensures a default admin user is
+present on startup.                                                           
+                                                                              
+                                                                              
+                                                                              
+### `com.brandongcobb.vegan.store.api.dto`                                    
+                                                                              
+                                                                              
+                                                                              
+Contains Data Transfer Objects (DTOs) used for communication between layers,  
+especially for API requests and responses.                                    
+                                                                              
+                                                                              
+                                                                              
+*   `AuthResponse`: Response for login (contains token).                      
+                                                                              
+*   `CategoryResponse`: DTO for category data.                                
+                                                                              
+*   `OrderLineRequest`, `OrderLineResponse`: DTOs for order line items.       
+                                                                              
+*   `OrderResponse`: DTO for order details.                                   
+                                                                              
+*   `PlaceOrderRequest`: Request to place a new order.                        
+                                                                              
+*   `ProductResponse`: DTO for product details.                               
+                                                                              
+*   `SearchRequest`: **(NEW)** Consolidated DTO for search operations         
+(replaces `FileSearchRequest` and `WebSearchRequest`).                        
+                                                                              
+*   `VeganLoginRequest`, `VeganRegistrationRequest`: Request DTOs for user    
+authentication.                                                               
+                                                                              
+*   `VeganResponse`: DTO for user details.                                    
+                                                                              
+                                                                              
+                                                                              
+### `com.brandongcobb.vegan.store.ui`                                         
+                                                                              
+                                                                              
+                                                                              
+This package contains all Vaadin UI-related code.                             
+                                                                              
+                                                                              
+                                                                              
+*   **`base`**:                                                               
+                                                                              
+    *   `View`: An abstract base class for Vaadin views, providing a          
+`buildLayout()` method called before entering the view.                       
+                                                                              
+*   **`components`**: Reusable UI building blocks.                            
+                                                                              
+    *   `AvatarDropdown`: A composite component for a user avatar with a      
+dropdown menu.                                                                
+                                                                              
+                                                                              
+    *   `AvatarItem`: A composite component displaying an avatar, heading, and
+description.                                                                  
+                                                                              
+    *   `ProductGallery`: Displays a main product image and clickable         
+thumbnails.                                                                   
+                                                                              
+*   **`layouts`**: Vaadin `AppLayout` implementations defining the overall    
+structure of different parts of the application.                              
+                                                                              
+    *   `AdminLayout`: Layout for administrative views, with a drawer for     
+navigation.                                                                   
+                                                                              
+                                                                              
+    *   `MainLayout`: Main application layout for customer-facing views,      
+including header, search, and user avatar dropdown.                           
+                                                                              
+*   **`util`**: **(NEW)** UI-specific utility classes.                        
+                                                                              
+    *   `UserSessionUtil`: Contains static methods to manage user-related     
+information in the Vaadin session and update UI components (e.g.,             
+`syncCurrentUser`). This ensures UI logic is not mixed into services.         
+                                                                              
+*   **`views`**: The main pages of the application.                           
+                                                                              
+    *   `AdminCategoryView`: UI for managing product categories (tree grid,   
+form).                                                                        
+                                                                              
+    *   `AdminOrdersView`: UI for managing customer orders (grid with         
+filters).                                                                     
+                                                                              
+    *   `AdminProductView`: UI for managing products (grid, form, image       
+upload).                                                                      
+                                                                              
+    *   `CheckoutView`: Displays the shopping cart and allows placing an      
+order.                                                                        
+                                                                              
+    *   `DefaultView`: Redirects to login or store based on authentication    
+status.                                                                       
+                                                                              
+    *   `LoginView`: User login page.                                         
+                                                                              
+    *   `ProductDetailView`: Displays detailed information about a single     
+product.                                                                      
+                                                                              
+    *   `RegistrationView`: User registration page.                           
+                                                                              
+    *   `StoreView`: Main product catalog view with search, filters, and cart 
+integration.                                                                  
+                                                                              
+    *   `VeganView`: Placeholder for user account details.                    
+                                                                              
+                                                                              
+                                                                              
+### `com.brandongcobb.vegan.store.config`                                     
+                                                                              
+                                                                              
+                                                                              
+Spring Boot and Vaadin configuration classes.                                 
+                                                                              
+                                                                              
+                                                                              
+*   `AdminSecurityConfig`: (Implicit, if separate admin security is needed)   
+                                                                              
+*   `AppShell`: Vaadin application shell configuration (theme, CSS imports,   
+Push).                                                                        
+                                                                              
+*   `ApplicationSecurityConfig`: Defines `UserDetailsService` and             
+`PasswordEncoder` beans for Spring Security.                                  
+                                                                              
+*   `RestConfig`: Configures `RestTemplate` for external API calls.           
+                                                                              
+*   `SecurityConfig`: Main Spring Security configuration for URL              
+authorization, login, and logout.                                             
+                                                                              
+*   `WebConfig`: Configures web MVC aspects, specifically resource handlers   
+for uploaded files.                                                           
+                                                                              
+                                                                              
+                                                                              
+### `com.brandongcobb.vegan.store.utils` (Implicit)                           
+                                                                              
+                                                                              
+                                                                              
+While not explicitly a package in the provided code, the                      
+`com.brandongcobb.metadata` and `com.brandongcobb.vegan.utils.handlers`       
+imports in `VeganServiceImpl` suggest external utility libraries. These are   
+assumed to handle configuration management and other cross-cutting concerns.  
+                                                                              
+                                                                              
+                                                                              
+## 4. Application Flow (Bird's Eye View)                                      
+                                                                              
+                                                                              
+                                                                              
+### User Authentication & Session Management                                  
+                                                                              
+                                                                              
+                                                                              
+1.  **Access:** When a user accesses the root URL (`/`), `DefaultView` checks 
+if they are authenticated.                                                    
+                                                                              
+2.  **Login/Registration:**                                                   
+                                                                              
+    *   If not authenticated, `DefaultView` redirects to `LoginView`.         
+                                                                              
+    *   From `LoginView`, users can navigate to `RegistrationView`.           
+                                                                              
+    *   `RegistrationView` uses `VeganService.register()` to create a new     
+user.                                                                         
+                                                                              
+    *   `LoginView` uses Spring Security's form login, which authenticates    
+against the `UserDetailsService` configured in `ApplicationSecurityConfig`    
+(which uses `VeganRepository`).                                               
+                                                                              
+3.  **Session:** Upon successful login, Spring Security establishes a session.
+`MainLayout` uses `UserSessionUtil.syncCurrentUser()` to fetch user details   
+from `VeganRepository` and store the `userId` in `VaadinSession`, also        
+updating the `AvatarItem` in the header.                                      
+                                                                              
+4.  **Logout:** The "Logout" button in `MainLayout` triggers Spring Security's
+logout endpoint, clearing the session.                                        
+                                                                              
+                                                                              
+                                                                              
+### Product Browsing & Search                                                 
+                                                                              
+                                                                              
+                                                                              
+1.  **Store View:** `StoreView` is the main product catalog.                  
+                                                                              
+2.  **Data Loading:** On `beforeEnter`, `StoreView` calls                     
+`storeService.findAllProducts()` and then `refreshProductGrid()` to populate  
+the `productGrid`.                                                            
+                                                                              
+3.  **Filtering & Sorting:** Users can interact with `searchField`,           
+`categoryFilter`, `sortBy`, and `inStockOnly` components. Each change triggers
+`refreshProductGrid()`, which re-filters and re-sorts the products fetched    
+from `storeService` and updates the `productGrid`.                            
+                                                                              
+4.  **Product Details:** Clicking on a product card in `StoreView` navigates  
+to `ProductDetailView` using the product ID as a route parameter.             
+                                                                              
+5.  **Product Detail View:** `ProductDetailView` fetches the specific product 
+using `storeService.transactFindProductById()` and displays its details,      
+including a `ProductGallery` for images.                                      
+                                                                              
+                                                                              
+                                                                              
+### Shopping Cart Management                                                  
+                                                                              
+                                                                              
+                                                                              
+1.  **Add to Cart:** From `StoreView` or `ProductDetailView`, users can add   
+products to their cart. This calls `cartService.addToCart()`.                 
+                                                                              
+2.  **Cart State:** `CartService` maintains the cart contents (a `Map<Product,
+Integer>`) in the user's session (it's a session-scoped bean).                
+                                                                              
+3.  **Cart Display:** The `cartDropdown` in `StoreView` and the `CheckoutView`
+both display the current cart contents by calling                             
+`cartService.getCartItems()`.                                                 
+                                                                              
+4.  **Update/Remove:** `CheckoutView` allows users to update quantities or    
+remove items, which calls `cartService.updateQuantity()` or                   
+`cartService.removeFromCart()`.                                               
+                                                                              
+                                                                              
+                                                                              
+### Order Placement & History                                                 
+                                                                              
+                                                                              
+                                                                              
+1.  **Checkout:** From `StoreView`, users can navigate to `CheckoutView`.     
+                                                                              
+2.  **Place Order:** In `CheckoutView`, the "Place Order" button triggers     
+`orderService.placeOrder()`. This method:                                     
+                                                                              
+    *   Retrieves the `userId` from `VaadinSession`.                          
+                                                                              
+    *   Constructs a `PlaceOrderRequest` from cart items.                     
+                                                                              
+    *   Calls `orderService.placeOrder()`, which in turn interacts with       
+`VeganRepository`, `ProductRepository`, and `OrderRepository` to create the   
+order, deduct stock, and save the order.                                      
+                                                                              
+    *   Clears the `CartService` upon success.                                
+                                                                              
+3.  **Order History:** After placing an order, the user is redirected to the  
+"My Orders" page (`AdminOrdersView` is currently used for both admin and user 
+orders, which might be a simplification). `AdminOrdersView` fetches orders    
+using `orderService.listVeganOrders()` based on the `userId` from the session.
+                                                                              
+4.  **Order Actions:** `AdminOrdersView` allows viewing details and canceling 
+orders via `orderService.cancelOrder()`.                                      
+                                                                              
+                                                                              
+                                                                              
+### Admin Functionality                                                       
+                                                                              
+                                                                              
+                                                                              
+1.  **Admin Access:** Admin views (e.g., `/admin/products`,                   
+`/admin/categories`, `/admin/orders`) are protected by Spring Security.       
+                                                                              
+2.  **Admin Layout:** These views use `AdminLayout`, which provides specific  
+navigation for administrative tasks.                                          
+                                                                              
+3.  **Product Management (`AdminProductView`):**                              
+                                                                              
+    *   Uses `StoreService` for CRUD operations on products and categories.   
+                                                                              
+    *   Uses `FileStorageService` for uploading product images.               
+                                                                              
+    *   `Binder` is used for form management and validation.                  
+                                                                              
+4.  **Category Management (`AdminCategoryView`):**                            
+                                                                              
+    *   Uses `StoreService` for CRUD operations on categories.                
+                                                                              
+    *   Displays categories in a `TreeGrid` to show hierarchy.                
+                                                                              
+    *   `Binder` is used for form management and validation.                  
+                                                                              
+5.  **Order Management (`AdminOrdersView`):**                                 
+                                                                              
+    *   Uses `OrderService` to list, filter, and manage orders.               
+                                                                              
+                                                                              
+                                                                              
+## 5. Development Guidelines                                                  
+                                                                              
+                                                                              
+                                                                              
+### Adding New Features                                                       
+                                                                              
+                                                                              
+                                                                              
+1.  **Identify the Layer:** Determine which layer(s) your new feature         
+primarily belongs to (domain, repo, service, ui, config).                     
+                                                                              
+2.  **Domain Changes:** If new data entities are needed, create/modify classes
+in `com.brandongcobb.vegan.store.domain`.                                     
+                                                                              
+3.  **Data Access:** If new data access methods are required, add them to the 
+appropriate repository interface in `com.brandongcobb.vegan.store.repo`.      
+                                                                              
+4.  **Business Logic:** Implement new business rules or orchestrate existing  
+ones in the `com.brandongcobb.vegan.store.service` package. If it's a new     
+domain, create a new service interface and its `impl`.                        
+                                                                              
+5.  **DTOs:** Create or modify DTOs in `com.brandongcobb.vegan.store.api.dto` 
+for any new data structures exchanged between layers or exposed via APIs.     
+                                                                              
+6.  **UI Development:**                                                       
+                                                                              
+    *   **Views:** For new pages, create a new class in                       
+`com.brandongcobb.vegan.store.ui.views`, extend `Composite<VerticalLayout>`   
+(or `View` if common `buildLayout` pattern is desired), and annotate with     
+`@Route` and `@PageTitle`. Inject necessary services.                         
+                                                                              
+    *   **Components:** For reusable UI elements, create classes in           
+`com.brandongcobb.vegan.store.ui.components`.                                 
+                                                                              
+    *   **Layouts:** If a new overall application structure is needed, create 
+a new `AppLayout` in `com.brandongcobb.vegan.store.ui.layouts`.               
+                                                                              
+    *   **UI Utilities:** If you find yourself writing UI-specific helper     
+methods that are not tied to a single view or component, consider adding them 
+to `com.brandongcobb.vegan.store.ui.util`.                                    
+                                                                              
+7.  **Configuration:** If new Spring beans, security rules, or Vaadin         
+configurations are needed, add them to the                                    
+`com.brandongcobb.vegan.store.config` package.                                
+                                                                              
+                                                                              
+                                                                              
+### Troubleshooting                                                           
+                                                                              
+                                                                              
+                                                                              
+*   **"User not found" / Authentication Issues:**                             
+                                                                              
+    *   Check `ApplicationSecurityConfig`'s `userDetailsService` to ensure it 
+correctly fetches users from `VeganRepository`.                               
+                                                                              
+    *   Verify that the admin user is created on startup by checking console  
+logs for "✅ Admin user created".                                             
+                                                                              
+    *   Ensure passwords are correctly encoded/decoded by                     
+`BCryptPasswordEncoder`.                                                      
+                                                                              
+*   **Database Issues:**                                                      
+                                                                              
+    *   Check `application.properties` for database connection details.       
+                                                                              
+    *   Verify that JPA entities are correctly mapped and that the database   
+schema matches.                                                               
+                                                                              
+    *   Look for `jakarta.persistence` related errors in logs.                
+                                                                              
+*   **Vaadin UI Not Updating:**                                               
+                                                                              
+    *   Ensure you are calling `grid.setItems()` or                           
+`component.add()`/`removeAll()` to refresh UI components.                     
+                                                                              
+    *   Check if `UI.getCurrent().push()` is needed for server-side updates in
+long-running operations (though `@Push` on `AppShell` handles most cases).    
+                                                                              
+    *   Inspect browser console for JavaScript errors.                        
+                                                                              
+*   **"Insufficient Stock" / Business Logic Errors:**                         
+                                                                              
+    *   Trace the service methods involved (e.g., `OrderService.placeOrder()`)
+to understand the flow and conditions.                                        
+                                                                              
+    *   Check for correct data being passed in DTOs.                          
+                                                                              
+*   **File Uploads Not Working:**                                             
+                                                                              
+    *   Verify `file.upload-dir` property in `application.properties` points  
+to a writable directory.                                                      
+                                                                              
+    *   Check `FileSystemStorageService` for `IOException`s.                  
+                                                                              
+    *   Ensure the `/uploads/**` resource handler is correctly configured in  
+`WebConfig`.                                                                  
+                                                                              
+                                                                              
+                                                                              
+This refactoring aims to make the codebase more intuitive and easier to       
+maintain and extend. By adhering to these principles and the established      
+structure, future development should be more efficient and less prone to      
+errors.                                                                       
+                                            
