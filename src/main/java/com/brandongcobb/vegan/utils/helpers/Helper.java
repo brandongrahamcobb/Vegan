@@ -25,31 +25,31 @@ public class Helper {
     }
     
     public String getPasswordName() {
-        return getProperty("DB_NAME");
+        return (String) getProperty("DB_NAME");
     }
     
     public String getUsername() {
-        return getProperty("H2_USERNAME");
+        return (String) getProperty("H2_USERNAME");
     }
     
     public String getPassword() {
-        return getProperty("H2_PASSWORD");
+        return (String) getProperty("H2_PASSWORD");
     }
     
     public String getHost() {
-        return getProperty("H2_HOST");
+        return (String) getProperty("H2_HOST");
     }
     
     public int getPort() {
-        return Integer.parseInt(getProperty("H2_PORT"));
+        return Integer.parseInt((String) getProperty("H2_PORT"));
     }
     
     public String getDatabase() {
-        return getProperty("DB_NAME");
+        return (String) getProperty("DB_NAME");
     }
     
     private void propertiesAdd(String name, String value) {
-        defaultProperties.set(name, value);
+        defaultProperties.setProperty(name, value);
     }
     
     private Properties getDefaultProperties() {
@@ -63,4 +63,9 @@ public class Helper {
     private Object getProperty(String name) {
         return defaultProperties.get(name) == null ? null : getPropertyHelper(name);
     }
+    
+    private Object getPropertyHelper(String name) {
+        return defaultProperties.getProperty(name);
+    }
+
 }
