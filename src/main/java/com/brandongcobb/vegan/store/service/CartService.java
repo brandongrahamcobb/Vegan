@@ -15,7 +15,19 @@ public class CartService {
     private final Map<Product, Integer> cart = new LinkedHashMap<>();
 
     public void addToCart(Product product, int qty) {
+        if (qty <= 0) {
+            removeFromCart(product); // Remove if quantity is zero or less
+            return;
+        }
         cart.merge(product, qty, Integer::sum);
+    }
+
+    public void updateQuantity(Product product, int newQuantity) {
+        if (newQuantity <= 0) {
+            removeFromCart(product);
+        } else {
+            cart.put(product, newQuantity);
+        }
     }
 
     public void removeFromCart(Product product) {
