@@ -157,7 +157,7 @@ public class ProductDetailView extends Composite<VerticalLayout> implements Befo
             extendedDetails.add(new Paragraph("Tags: " + product.getTags()));
         }
         extendedDetails.getStyle().set("margin-top", "1.5em").set("border-top", "1px solid var(--lumo-contrast-10pct)");
-        extendedDetails.setPaddingTop("1em");
+        extendedDetails.getStyle().set("padding-top", "1em"); // Corrected line
 
 
         detailsCol.add(name, category, price, stock, desc, extendedDetails);
