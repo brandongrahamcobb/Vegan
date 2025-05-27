@@ -43,12 +43,12 @@ public class StoreService {
 
     // —— Category operations —— //
 
-    public List<Category> listCategories() {
+    public List<Category> getCategoryList() {
         return categoryRepo.findAll();
     }
 
-    public Optional<Category> findCategoryById(Long id) {
-        return categoryRepo.findById(id);
+    public Optional<Category> getCategoryById(Long id) {
+        return categoryRepo.getCategoryById(id);
     }
 
     public Category saveCategory(Category category) {
@@ -61,7 +61,7 @@ public class StoreService {
 
     // —— Product operations —— //
 
-    public List<Product> findAllProducts() {
+    public List<Product> getProductList() {
         return productRepo.findAll();
     }
 
@@ -73,8 +73,8 @@ public class StoreService {
         productRepo.deleteById(id);
     }
     
-    public void addImage(Long productId, String imageUrl) {
-        Optional<Product> opt = transactFindProductById(productId);
+    public void addImageByIdAndUrl(Long productId, String imageUrl) {
+        Optional<Product> opt = getProductByProductId(productId);
         if (opt.isEmpty()) return;
         
         Product product = opt.get();
@@ -84,21 +84,30 @@ public class StoreService {
     
     
     @Transactional
-    public Optional<Product> transactFindProductById(Long id) {
-        return productRepo.findProductWithImagesById(id);
+    public Optional<Product> getProductByProductId(Long id) {
+        return productRepo.getProductByProductId(id);
     }
     
-    public List<Category> listRootCategories() {
-        return categoryRepo.findByParentIsNull();
+    public List<Category> getRootCategoriesList() {
+        return categoryRepo.getCategoryParentIsNull();
     }
     
     // subcats of a given parent
-    public List<Category> findSubCategories(Long parentId) {
-        return categoryRepo.findByParentId(parentId);
+    public List<Category> getSubCategoriesById(Long parentId) {
+        return categoryRepo.getCategoryByParentId(parentId);
     }
     
     // all categories (flat)
-    public List<Category> listAllCategories() {
+    public List<Category> getCategoriesList() {
         return categoryRepo.findAll();
     }
+
+     public void addImage(Long productId, String imageUrl) {
+        Optional<Product> opt = getProductByProductId(productId);
+        if (opt.isEmpty()) return;
+        
+        Product product = opt.get();
+        product.addImage(imageUrl); // This assumes your Product class has a method called addImage(String)
+        saveProduct(product);
+    }    
 }

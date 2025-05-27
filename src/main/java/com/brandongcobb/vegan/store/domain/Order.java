@@ -32,9 +32,9 @@ public class Order {
 
     public Order(Vegan vegan, List<OrderLine> orderLines) {
         this.vegan = vegan;
-        this.orderLines = orderLines;
         this.orderDate = Instant.now();
         this.status = OrderStatus.PENDING;
+        this.orderLines = orderLines != null ? orderLines : new ArrayList<>();
         this.orderLines.forEach(line -> line.setOrder(this));
     }
 
@@ -55,8 +55,15 @@ public class Order {
     }
 
     public void setOrderLines(List<OrderLine> orderLines) {
-        this.orderLines = orderLines;
+        this.orderLines = orderLines != null ? orderLines : new ArrayList<>();
         this.orderLines.forEach(line -> line.setOrder(this));
+    }
+
+    public void addOrderLine(OrderLine orderLine) {
+        if (orderLine != null) {
+            orderLine.setOrder(this);
+            this.orderLines.add(orderLine);
+        }
     }
 
     public Instant getOrderDate() {

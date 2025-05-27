@@ -81,7 +81,7 @@ public class ProductDetailView extends Composite<VerticalLayout> implements Befo
         Long productId = Long.valueOf(param.get());
 
         try {
-            product = service.transactFindProductById(productId).orElse(null);
+            product = service.getProductByProductId(productId).orElse(null);
             if (product == null) {
                 Notification.show("Product not found");
                 event.rerouteTo("store");

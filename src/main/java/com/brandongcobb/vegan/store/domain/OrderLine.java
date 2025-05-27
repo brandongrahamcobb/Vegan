@@ -2,6 +2,7 @@ package com.brandongcobb.vegan.store.domain;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.util.Objects;
 
 @Entity
 @Table(name = "order_lines")
@@ -22,13 +23,23 @@ public class OrderLine {
     @Column(nullable = false)
     private int quantity;
 
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
     protected OrderLine() {
+        // For JPA
     }
 
     public OrderLine(Product product, int quantity, BigDecimal price) {
+        if (product == null) {
+            throw new IllegalArgumentException("Product cannot be null");
+        }
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than 0");
+        }
+        if (price == null || price.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Price must be greater than 0");
+        }
         this.product = product;
         this.quantity = quantity;
         this.price = price;
@@ -51,6 +62,9 @@ public class OrderLine {
     }
 
     public void setProduct(Product product) {
+        if (product == null) {
+            throw new IllegalArgumentException("Product cannot be null");
+        }
         this.product = product;
     }
 
@@ -59,6 +73,9 @@ public class OrderLine {
     }
 
     public void setQuantity(int quantity) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than 0");
+        }
         this.quantity = quantity;
     }
 
@@ -67,6 +84,30 @@ public class OrderLine {
     }
 
     public void setPrice(BigDecimal price) {
+        if (price == null || price.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Price must be greater than 0");
+        }
         this.price = price;
+    }
+
+    public BigDecimal getLineTotal() {
+        return price.multiply(BigDecimal.valueOf(quantity));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        OrderLine orderLine = (OrderLine) o;
+        return quantity == orderLine.quantity &&
+               Objects.equals(id, orderLine.id) &&
+               Objects.equals(order, orderLine.order) &&
+               Objects.equals(product, orderLine.product) &&
+               Objects.equals(price, orderLine.price);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, order, product, quantity, price);
     }
 }

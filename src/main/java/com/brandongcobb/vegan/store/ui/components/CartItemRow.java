@@ -11,8 +11,6 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 // Removed @Autowired as this component will not be managed by Spring
 // Removed @Component as this component will not be managed by Spring
 
-import java.util.function.Runnable;
-
 // Removed @Component annotation
 public class CartItemRow extends HorizontalLayout {
 

@@ -156,7 +156,7 @@ public class AdminProductView extends View {
                     service.addImage(currentProduct.getId(), url);
                     Notification.show("Image added", 2000, Notification.Position.MIDDLE);
                     // Re-fetch the product to get updated image list and then display gallery
-                    currentProduct = service.transactFindProductById(currentProduct.getId()).orElse(currentProduct);
+                    currentProduct = service.getProductByProductId(currentProduct.getId()).orElse(currentProduct);
                     displayGallery();
                 } else {
                     Notification.show("Please save the product first before adding images.", 3000, Notification.Position.MIDDLE);
@@ -226,7 +226,7 @@ public class AdminProductView extends View {
             return;
         }
         // Ensure we get the product with its images loaded
-        currentProduct = service.transactFindProductById(p.getId()).orElse(p);
+        currentProduct = service.getProductByProductId(p.getId()).orElse(p);
         binder.readBean(currentProduct);
         delete.setEnabled(true);
         save.setText("Update");

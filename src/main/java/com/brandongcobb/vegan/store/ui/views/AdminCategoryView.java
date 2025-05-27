@@ -204,7 +204,7 @@ public class AdminCategoryView extends Composite<VerticalLayout> implements Befo
             clearForm();
             return;
         }
-        this.current = service.findCategoryById(c.getId()).orElse(c);
+        this.current = service.getCategoryById(c.getId()).orElse(c);
         binder.readBean(current);
         delete.setEnabled(true);
         save.setText("Update");

@@ -42,7 +42,7 @@ public class OrderServiceImpl implements OrderService {
         Vegan vegan = veganRepository.findById(request.veganId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Vegan not found"));
         List<OrderLine> lines = request.items().stream().map(item -> {
-            Product product = productRepository.findProductWithImagesById(item.productId())
+            Product product = productRepository.getProductByProductId(item.productId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product not found: " + item.productId()));
             if (product.getStock() < item.quantity()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient stock for product: " + product.getName());
@@ -70,7 +70,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void cancelOrder(Long orderId) {
+    public void cancelOrderByOrderId(Long orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
         if (order.getStatus() == OrderStatus.CANCELLED) {
@@ -85,11 +85,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderResponse> listVeganOrders(Long veganId) {
+    public List<OrderResponse> getOrdersByUserId(Long veganId) {
         if (!veganRepository.existsById(veganId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Vegan not found");
         }
-        return orderRepository.findByVeganId(veganId).stream()
+        return orderRepository.getVeganByUserId(veganId).stream()
                 .map(order -> {
                     List<OrderLineResponse> items = order.getOrderLines().stream()
                             .map(line -> new OrderLineResponse(
@@ -110,7 +110,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderResponse getOrder(Long orderId) {
+    public OrderResponse getOrderByOrderId(Long orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
         List<OrderLineResponse> items = order.getOrderLines().stream()

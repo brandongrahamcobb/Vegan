@@ -119,7 +119,7 @@ public class AdminOrdersView extends VerticalLayout {
         // or remove the veganId filter from orderService.listVeganOrders.
         Long userId = (Long) VaadinSession.getCurrent().getAttribute("userId");
         if (userId != null) {
-            allOrders = orderService.listVeganOrders(userId); // This will only show orders for the logged-in admin if they are also a 'vegan'
+            allOrders = orderService.getOrdersByUserId(userId); // This will only show orders for the logged-in admin if they are also a 'vegan'
             refreshGrid();
         } else {
             // Handle case where admin is not a 'vegan' user or userId is not set
@@ -172,7 +172,7 @@ public class AdminOrdersView extends VerticalLayout {
 
     private void cancelOrder(OrderResponse order) {
         try {
-            orderService.cancelOrder(order.orderId());
+            orderService.cancelOrderByOrderId(order.orderId());
             Notification.show("Order cancelled successfully");
             loadOrders(); // Reload all orders to reflect changes
         } catch (Exception e) {

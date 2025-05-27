@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface OrderService {
     OrderResponse placeOrder(PlaceOrderRequest request);
-    void cancelOrder(Long orderId);
-    List<OrderResponse> listVeganOrders(Long veganId);
-    OrderResponse getOrder(Long orderId);
+    void cancelOrderByOrderId(Long orderId);
+    List<OrderResponse> getOrdersByUserId(Long veganId);
+    OrderResponse getOrderByOrderId(Long orderId);
 }
