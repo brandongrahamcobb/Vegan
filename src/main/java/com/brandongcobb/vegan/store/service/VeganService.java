@@ -15,17 +15,7 @@ public interface VeganService {
     VeganResponse register(VeganRegistrationRequest request);
     AuthResponse login(VeganLoginRequest request);
     
-    public default void syncCurrentUser(VeganRepository veganRepo, AvatarItem avatarItem) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.isAuthenticated()) {
-            veganRepo.findByEmail(auth.getName()).ifPresent(v -> {
-                String full = v.getFirstName() + " " + v.getLastName();
-                VaadinSession.getCurrent().setAttribute("userId", v.getId());
-                Avatar avatar = new Avatar(full);
-                avatarItem.setAvatar(avatar);
-                avatarItem.setHeading(full);
-                avatarItem.setDescription(v.getEmail());
-            });
-        }
-    }
+    // The syncCurrentUser method has been removed from the service interface
+    // as it couples the service to UI components and Vaadin session.
+    // This logic should be handled in the UI layer where AvatarItem and VaadinSession are relevant.
 }

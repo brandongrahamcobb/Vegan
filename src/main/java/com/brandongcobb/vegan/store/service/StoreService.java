@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
 @Transactional
 public class StoreService {
 

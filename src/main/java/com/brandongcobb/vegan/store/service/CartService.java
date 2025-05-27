@@ -4,6 +4,7 @@ import com.brandongcobb.vegan.store.domain.Product;
 import org.springframework.stereotype.Service;
 import org.springframework.context.annotation.Scope;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -48,5 +49,11 @@ public class CartService {
 
     public int getTotalQuantity() {
         return cart.values().stream().mapToInt(i -> i).sum();
+    }
+
+    public BigDecimal getTotalPrice() {
+        return cart.entrySet().stream()
+                .map(entry -> entry.getKey().getPrice().multiply(BigDecimal.valueOf(entry.getValue())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }
