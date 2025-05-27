@@ -140,7 +140,7 @@ public class AdminCategoryView extends Composite<VerticalLayout> implements Befo
     
     private void updateTree() {
         // 1) load everything once
-        List<Category> all = service.listAllCategories();
+        List<Category> all = service.getCategoriesList();
         
         // 2) apply text‐filter if needed
         String f = filter.getValue();

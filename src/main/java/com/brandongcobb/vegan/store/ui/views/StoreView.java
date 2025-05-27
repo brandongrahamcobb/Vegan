@@ -51,8 +51,8 @@ public class StoreView extends VerticalLayout implements BeforeEnterObserver {
         add(header);
 
         // Fetch categories and products
-        List<Category> categories = storeService.listCategories();
-        List<Product> products = storeService.findAllProducts();
+        List<Category> categories = storeService.getCategoryList();
+        List<Product> products = storeService.getProductList();
 
         // Create and add carousels for each category
         categories.forEach(category -> {

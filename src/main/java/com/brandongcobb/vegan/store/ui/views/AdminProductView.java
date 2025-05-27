@@ -287,7 +287,7 @@ public class AdminProductView extends View {
     }
 
     private void updateGrid() {
-        grid.setItems(service.findAllProducts());
-        categoryCombo.setItems(service.listCategories());
+        grid.setItems(service.getProductList());
+        categoryCombo.setItems(service.getCategoryList());
     }
 }
