@@ -157,9 +157,8 @@ public class CheckoutView extends Composite<VerticalLayout> implements BeforeEnt
                 .collect(Collectors.toList());
         cartGrid.setItems(items);
 
-        BigDecimal total = items.stream()
-                .map(CartItem::getSubtotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        // Use the new getTotalPrice() method from CartService
+        BigDecimal total = cartService.getTotalPrice();
         totalAmountSpan.setText("Total: $" + total.setScale(2, RoundingMode.HALF_UP));
 
         // Enable/disable place order button based on cart content
