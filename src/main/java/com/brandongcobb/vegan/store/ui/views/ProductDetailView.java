@@ -35,6 +35,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.UI;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.data.value.ValueChangeMode;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -50,11 +52,12 @@ import org.springframework.stereotype.Component;
 
 @Route(value = "product/:productId", layout = MainLayout.class)
 @PageTitle("Product Details | Vegan Store")
-public class ProductDetailView extends Composite<VerticalLayout> {
+public class ProductDetailView extends Composite<VerticalLayout> implements BeforeEnterObserver { // Implemented BeforeEnterObserver
 
     private final StoreService service;
     private final CartService cartService;
     private Product product;
+    private IntegerField quantityField;
 
     @Autowired
     public ProductDetailView(StoreService service, CartService cartService) {
@@ -62,21 +65,20 @@ public class ProductDetailView extends Composite<VerticalLayout> {
         this.cartService = cartService;
         getContent().setSizeFull();
         getContent().setPadding(true);
+        getContent().setAlignItems(Alignment.CENTER); // Center content horizontally
     }
 
+    @Override // Implemented BeforeEnterObserver
     public void beforeEnter(BeforeEnterEvent event) {
         // Expect product ID as a route parameter
         Optional<String> param = event.getRouteParameters().get("productId");
-        if (!param.isPresent()) { return; }
-        Long productId = Long.valueOf(param.get());
-        List<String> segments = event.getLocation().getSegments();
-        if (segments.size() < 2) {
+        if (!param.isPresent()) {
             event.rerouteTo("store");  // fallback if no ID provided
             return;
         }
+        Long productId = Long.valueOf(param.get());
 
         try {
-        //    Long productId = Long.valueOf(segments.get(1));
             product = service.transactFindProductById(productId).orElse(null);
             if (product == null) {
                 Notification.show("Product not found");
@@ -93,109 +95,122 @@ public class ProductDetailView extends Composite<VerticalLayout> {
     public void buildLayout() {
         getContent().removeAll();
 
-        // --- Main image & Vertical Thumbs ---
-        // Imagine ProductGallery can render images as VERTICAL thumbnails
-        // (if not, adapt its code or do a simple Column of thumbnail Images)
+        // Back button
+        Button backButton = new Button("← Back to Store", e -> UI.getCurrent().navigate("store"));
+        backButton.getStyle().set("margin-bottom", "1em");
+        getContent().add(backButton);
+        getContent().setAlignSelf(Alignment.START, backButton); // Align back button to the start
+
+        // Main content layout
+        HorizontalLayout mainContent = new HorizontalLayout();
+        mainContent.setWidthFull();
+        mainContent.setSpacing(true);
+        mainContent.setDefaultVerticalComponentAlignment(Alignment.START);
+        mainContent.setMaxWidth("1200px"); // Constrain max width for better readability
+
+        // --- Left: Image Gallery ---
         VerticalLayout galleryCol = new VerticalLayout();
         galleryCol.setPadding(false);
         galleryCol.setSpacing(false);
         galleryCol.setAlignItems(Alignment.CENTER);
+        galleryCol.setWidth("40%"); // Allocate more space for the gallery
 
-        // Vertical list of thumbs on the left,
-        // main image to the right of thumbs.
-        HorizontalLayout imageBlock = new HorizontalLayout();
-        imageBlock.setDefaultVerticalComponentAlignment(Alignment.START);
+        ProductGallery productGallery = new ProductGallery(product.getImageUrls());
+        galleryCol.add(productGallery);
 
-        VerticalLayout thumbs = new VerticalLayout();
-        thumbs.setSpacing(false);
-        Image mainImage = new Image(
-            product.getImages().isEmpty()
-                ? "frontend/images/placeholder.png"
-                : product.getImages().get(0).getUrl(),
-            product.getName()
-        );      
-        product.getImages().forEach(image -> {
-            String url = safeImageUrl(image.getUrl());
-            Image thumb = new Image(url, "Thumbnail");
-            thumb.setWidth("50px");
-            thumb.setHeight("50px");
-            thumb.getStyle().set("cursor", "pointer")
-                .set("border", "1px solid #ddd")
-                .set("margin-bottom", "6px");
-            thumb.addClickListener(e -> mainImage.setSrc(url));
-            thumbs.add(thumb);
-        });
-
-       
-        mainImage.setWidth("360px");
-        mainImage.getStyle().set("border-radius", "8px")
-            .set("box-shadow", "0 4px 16px #eee")
-            .set("margin", "0 6px");
-
-        imageBlock.add(thumbs, mainImage);
-
-        // --- Center: Details ---
+        // --- Center: Product Details ---
         VerticalLayout detailsCol = new VerticalLayout();
         detailsCol.setPadding(false);
         detailsCol.setSpacing(true);
-        detailsCol.setWidth("420px");
+        detailsCol.setWidth("40%"); // Allocate space for details
 
         H2 name = new H2(product.getName());
-        name.getStyle().set("font-size", "2em");
+        name.getStyle().set("font-size", "2em").set("margin-top", "0");
 
         Paragraph category = new Paragraph("Category: " +
-            (product.getCategory() != null ? product.getCategory().getName() : "N/A"));
-        category.getStyle().set("color", "#888");
+            (product.getCategory() != null ? product.getCategory().getFullPath() : "N/A"));
+        category.getStyle().set("color", "var(--lumo-secondary-text-color)");
 
         Paragraph price = new Paragraph("$" + product.getPrice().setScale(2, RoundingMode.HALF_UP));
-        price.getStyle().set("font-size", "1.6em").set("color", "#B12704").set("font-weight", "bold");
+        price.getStyle().set("font-size", "1.6em").set("color", "var(--lumo-primary-text-color)").set("font-weight", "bold");
 
         Paragraph stock = new Paragraph(product.getStock() > 0 ?
-            "In Stock" : "Out of Stock");
+            "In Stock (" + product.getStock() + " available)" : "Out of Stock");
         stock.getStyle().set("color", product.getStock() > 0 ? "green" : "red");
 
         Paragraph desc = new Paragraph(product.getDescription());
+        desc.getStyle().set("margin-top", "1em");
 
-        detailsCol.add(name, category, price, stock, desc);
+        // Extended details
+        Div extendedDetails = new Div();
+        extendedDetails.add(new H4("Product Information"));
+        if (product.getBrand() != null && !product.getBrand().isEmpty()) {
+            extendedDetails.add(new Paragraph("Brand: " + product.getBrand()));
+        }
+        if (product.getDimensions() != null && !product.getDimensions().isEmpty()) {
+            extendedDetails.add(new Paragraph("Dimensions: " + product.getDimensions()));
+        }
+        if (product.getWeight() != null) {
+            extendedDetails.add(new Paragraph("Weight: " + product.getWeight() + " kg"));
+        }
+        if (product.getTags() != null && !product.getTags().isEmpty()) {
+            extendedDetails.add(new Paragraph("Tags: " + product.getTags()));
+        }
+        extendedDetails.getStyle().set("margin-top", "1.5em").set("border-top", "1px solid var(--lumo-contrast-10pct)");
+        extendedDetails.setPaddingTop("1em");
+
+
+        detailsCol.add(name, category, price, stock, desc, extendedDetails);
 
         // --- Right: Cart box ---
         VerticalLayout cartCol = new VerticalLayout();
         cartCol.getStyle()
-            .set("background", "#fafafa")
-            .set("border", "1px solid #ebecee")
+            .set("background", "var(--lumo-contrast-5pct)")
+            .set("border", "1px solid var(--lumo-contrast-10pct)")
             .set("border-radius", "10px")
             .set("padding", "1.2em")
             .set("margin-top", "0");
         cartCol.setAlignItems(Alignment.STRETCH);
+        cartCol.setWidth("20%"); // Allocate space for cart box
 
         Paragraph cartPrice = new Paragraph("$" + product.getPrice().setScale(2, RoundingMode.HALF_UP));
-        cartPrice.getStyle().set("font-size", "1.25em").set("color", "#B12704").set("font-weight", "bold");
+        cartPrice.getStyle().set("font-size", "1.25em").set("color", "var(--lumo-primary-text-color)").set("font-weight", "bold");
+
+        quantityField = new IntegerField("Quantity");
+        quantityField.setValue(1);
+        quantityField.setStepButtonsVisible(true);
+        quantityField.setMin(1);
+        quantityField.setMax(product.getStock());
+        quantityField.addValueChangeListener(e -> {
+            if (quantityField.getValue() == null || quantityField.getValue() < 1) {
+                quantityField.setValue(1);
+            } else if (quantityField.getValue() > product.getStock()) {
+                quantityField.setValue(product.getStock());
+            }
+        });
+        quantityField.setValueChangeMode(ValueChangeMode.EAGER);
+        quantityField.setWidthFull();
 
         Button addToCart = new Button("Add to Cart", e -> {
-            cartService.addToCart(product, 1);
-            Notification.show(product.getName() + " added to cart");
+            int qty = quantityField.getValue() != null ? quantityField.getValue() : 1;
+            if (qty > 0 && qty <= product.getStock()) {
+                cartService.addToCart(product, qty);
+                Notification.show(qty + " x " + product.getName() + " added to cart", 3000, Notification.Position.MIDDLE);
+            } else {
+                Notification.show("Invalid quantity or insufficient stock.", 3000, Notification.Position.MIDDLE);
+            }
         });
-        addToCart.getStyle().set("background", "#FFD814").set("font-size", "1.1em");
+        addToCart.getStyle().set("background", "var(--lumo-primary-color)").set("color", "white").set("font-size", "1.1em");
         addToCart.setWidthFull();
+        addToCart.setEnabled(product.getStock() > 0); // Disable if out of stock
 
-        cartCol.add(cartPrice, stock, addToCart);
+        cartCol.add(cartPrice, quantityField, addToCart, stock); // Reordered stock to be near quantity/add to cart
 
-        // --- Top-align all columns, set min widths, add spacing ---
-        HorizontalLayout main = new HorizontalLayout(imageBlock, detailsCol, cartCol);
-        main.setWidthFull();
-        main.setSpacing(true);
-        main.setDefaultVerticalComponentAlignment(Alignment.START);
-
-        imageBlock.getStyle().set("margin-right", "36px");
-        detailsCol.getStyle().set("margin-right", "36px");
-        Button back = new Button("← Back", e -> UI.getCurrent().navigate("store"));
-        getContent().add(main);
-        getContent().setHorizontalComponentAlignment(Alignment.CENTER, main);
+        mainContent.add(galleryCol, detailsCol, cartCol);
+        getContent().add(mainContent);
     }
     
     private static String safeImageUrl(String url) {
         return (url != null && !url.trim().isEmpty()) ? url : "frontend/images/placeholder.png";
     }
-    
-    
 }
