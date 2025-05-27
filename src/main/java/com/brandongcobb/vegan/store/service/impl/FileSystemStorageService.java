@@ -1,6 +1,5 @@
 package com.brandongcobb.vegan.store.service.impl;
 
-import java.io.InputStream;
 import com.brandongcobb.vegan.store.service.FileStorageService;
 
 public class FileSystemStorageService implements FileStorageService {
