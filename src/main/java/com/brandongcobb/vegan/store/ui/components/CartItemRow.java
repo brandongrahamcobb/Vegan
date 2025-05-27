@@ -8,16 +8,19 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+// Removed @Autowired as this component will not be managed by Spring
+// Removed @Component as this component will not be managed by Spring
 
-@Component
+import java.util.function.Runnable;
+
+// Removed @Component annotation
 public class CartItemRow extends HorizontalLayout {
 
     private final CartService cartService;
     private final CartItem cartItem;
     private final Runnable refreshParentCallback; // Callback to refresh the parent view
 
+    // Removed @Autowired from constructor as this component is not Spring-managed
     public CartItemRow(CartService cartService, CartItem cartItem, Runnable refreshParentCallback) {
         this.cartService = cartService;
         this.cartItem = cartItem;
