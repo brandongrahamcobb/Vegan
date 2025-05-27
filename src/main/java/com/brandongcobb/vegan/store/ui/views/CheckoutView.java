@@ -43,6 +43,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.brandongcobb.vegan.store.ui.components.CartItemRow; // Import the new component
+
 @Route(value = "checkout", layout = MainLayout.class)
 @PageTitle("Checkout | The Vyrtuous Project")
 public class CheckoutView extends Composite<VerticalLayout> implements BeforeEnterObserver {
@@ -77,9 +79,10 @@ public class CheckoutView extends Composite<VerticalLayout> implements BeforeEnt
 
         cartGrid.addColumn(CartItem::getProductName).setHeader("Product");
         cartGrid.addColumn(CartItem::getUnitPrice).setHeader("Unit Price");
-        cartGrid.addColumn(new ComponentRenderer<>(this::createQuantityField)).setHeader("Quantity");
+        // Use the new CartItemRow component for quantity and remove actions
+        cartGrid.addComponentColumn(item -> new CartItemRow(cartService, item, this::refreshCartDisplay)).setHeader("Quantity / Actions");
         cartGrid.addColumn(CartItem::getSubtotal).setHeader("Subtotal");
-        cartGrid.addComponentColumn(this::createRemoveButton).setHeader("");
+        // Removed the separate remove button column as it's now part of CartItemRow
 
         getContent().add(cartGrid);
 
@@ -117,39 +120,7 @@ public class CheckoutView extends Composite<VerticalLayout> implements BeforeEnt
         }
     }
 
-    private IntegerField createQuantityField(CartItem item) {
-        IntegerField quantityField = new IntegerField();
-        quantityField.setValue(item.getQuantity());
-        quantityField.setMin(1);
-        quantityField.setMax(item.getProduct().getStock()); // Max quantity is product's stock
-        quantityField.setStepButtonsVisible(true);
-        quantityField.setWidth("80px");
-
-        quantityField.addValueChangeListener(e -> {
-            int newQty = e.getValue() != null ? e.getValue() : 1;
-            if (newQty > item.getProduct().getStock()) {
-                Notification.show("Cannot add more than available stock (" + item.getProduct().getStock() + ")", 3000, Notification.Position.MIDDLE);
-                quantityField.setValue(item.getProduct().getStock());
-                newQty = item.getProduct().getStock();
-            } else if (newQty < 1) {
-                quantityField.setValue(1);
-                newQty = 1;
-            }
-            cartService.updateQuantity(item.getProduct(), newQty);
-            refreshCartDisplay();
-        });
-        return quantityField;
-    }
-
-    private Button createRemoveButton(CartItem item) {
-        Button removeButton = new Button(VaadinIcon.TRASH.create(), e -> {
-            cartService.removeFromCart(item.getProduct());
-            refreshCartDisplay();
-            Notification.show(item.getProductName() + " removed from cart.", 2000, Notification.Position.MIDDLE);
-        });
-        removeButton.addThemeNames("icon", "tertiary");
-        return removeButton;
-    }
+    // Removed createQuantityField and createRemoveButton as they are now in CartItemRow
 
     private void refreshCartDisplay() {
         List<CartItem> items = cartService.getCartItems().entrySet().stream()
@@ -203,8 +174,8 @@ public class CheckoutView extends Composite<VerticalLayout> implements BeforeEnt
         Notification.show("Cart emptied.", 2000, Notification.Position.MIDDLE);
     }
 
-    // Helper record for Grid display
-    private static class CartItem {
+    // Helper record for Grid display - Made public static for CartItemRow component
+    public static class CartItem {
         private final Product product;
         private final int quantity;
 

@@ -58,11 +58,13 @@ public class ProductDetailView extends Composite<VerticalLayout> implements Befo
     private final CartService cartService;
     private Product product;
     private IntegerField quantityField;
+    private final CartButtonAndDropdown cartButtonAndDropdown; // Inject CartButtonAndDropdown
 
     @Autowired
-    public ProductDetailView(StoreService service, CartService cartService) {
+    public ProductDetailView(StoreService service, CartService cartService, CartButtonAndDropdown cartButtonAndDropdown) {
         this.service = service;
         this.cartService = cartService;
+        this.cartButtonAndDropdown = cartButtonAndDropdown; // Assign injected component
         getContent().setSizeFull();
         getContent().setPadding(true);
         getContent().setAlignItems(Alignment.CENTER); // Center content horizontally
@@ -196,6 +198,7 @@ public class ProductDetailView extends Composite<VerticalLayout> implements Befo
             if (qty > 0 && qty <= product.getStock()) {
                 cartService.addToCart(product, qty);
                 Notification.show(qty + " x " + product.getName() + " added to cart", 3000, Notification.Position.MIDDLE);
+                cartButtonAndDropdown.refresh(); // Refresh the global cart dropdown
             } else {
                 Notification.show("Invalid quantity or insufficient stock.", 3000, Notification.Position.MIDDLE);
             }

@@ -48,7 +48,8 @@ public class AdminLayout extends AppLayout {
         // Main navigation
         addToDrawer(
             new RouterLink("Products",   AdminProductView.class),
-            new RouterLink("Categories", AdminCategoryView.class)
+            new RouterLink("Categories", AdminCategoryView.class),
+            new RouterLink("Orders", AdminOrdersView.class) // Added AdminOrdersView to drawer
             // add more links here as you add more views...
         );
     }

@@ -111,9 +111,21 @@ public class AdminOrdersView extends VerticalLayout {
 
     private void loadOrders() {
         // Get user ID from VaadinSession
+        // For admin view, you might want to list all orders or filter by admin's scope,
+        // but for now, keeping it as is based on previous context.
+        // If this is truly an admin view, it should probably not filter by current user's veganId.
+        // Assuming for now that 'userId' might be used for some admin-specific filtering or logging.
+        // If you want to list ALL orders for admin, you'd call orderService.listAllOrders() (if it exists)
+        // or remove the veganId filter from orderService.listVeganOrders.
         Long userId = (Long) VaadinSession.getCurrent().getAttribute("userId");
         if (userId != null) {
-            allOrders = orderService.listVeganOrders(userId);
+            allOrders = orderService.listVeganOrders(userId); // This will only show orders for the logged-in admin if they are also a 'vegan'
+            refreshGrid();
+        } else {
+            // Handle case where admin is not a 'vegan' user or userId is not set
+            // For a true admin view, you'd likely fetch all orders or orders based on admin roles/permissions
+            Notification.show("Admin user ID not found in session. Cannot load orders.", 3000, Notification.Position.MIDDLE);
+            allOrders = List.of(); // Empty list
             refreshGrid();
         }
     }
@@ -162,7 +174,7 @@ public class AdminOrdersView extends VerticalLayout {
         try {
             orderService.cancelOrder(order.orderId());
             Notification.show("Order cancelled successfully");
-            refreshGrid();
+            loadOrders(); // Reload all orders to reflect changes
         } catch (Exception e) {
             Notification.show("Failed to cancel order: " + e.getMessage());
         }

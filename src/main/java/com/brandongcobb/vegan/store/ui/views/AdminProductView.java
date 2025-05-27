@@ -146,18 +146,21 @@ public class AdminProductView extends View {
 
         upload.setAcceptedFileTypes("image/png","image/jpeg");
         upload.addSucceededListener(evt -> {
-            if (currentProduct != null && currentProduct.getImages() != null && !currentProduct.getImages().isEmpty()) {
-                ProductGallery gallery = new ProductGallery(
-                    currentProduct.getImages().stream().map(img -> img.getUrl()).toList()
-                );
-                galleryContainer.add(gallery);
-            }
+            // The logic here was slightly off, it was trying to display the gallery
+            // before the image was actually added to the product and saved.
+            // The addImage method saves the product, so we just need to refresh the gallery after that.
             String filename = evt.getFileName();
             try (InputStream is = buffer.getInputStream()) {
                 String url = storageService.store(filename, is);
-                service.addImage(currentProduct.getId(), url);
-                Notification.show("Image added", 2000, Notification.Position.MIDDLE);
-                displayGallery();  // new method to refresh gallery
+                if (currentProduct != null && currentProduct.getId() != null) {
+                    service.addImage(currentProduct.getId(), url);
+                    Notification.show("Image added", 2000, Notification.Position.MIDDLE);
+                    // Re-fetch the product to get updated image list and then display gallery
+                    currentProduct = service.transactFindProductById(currentProduct.getId()).orElse(currentProduct);
+                    displayGallery();
+                } else {
+                    Notification.show("Please save the product first before adding images.", 3000, Notification.Position.MIDDLE);
+                }
             } catch (Exception ex) {
                 Notification.show("Upload failed: " + ex.getMessage());
             }
@@ -222,6 +225,7 @@ public class AdminProductView extends View {
             clearForm();
             return;
         }
+        // Ensure we get the product with its images loaded
         currentProduct = service.transactFindProductById(p.getId()).orElse(p);
         binder.readBean(currentProduct);
         delete.setEnabled(true);
@@ -235,12 +239,15 @@ public class AdminProductView extends View {
                 currentProduct = new Product();
             }
             binder.writeBean(currentProduct);
-            service.saveProduct(currentProduct);
+            Product savedProduct = service.saveProduct(currentProduct); // Get the saved product
+            currentProduct = savedProduct; // Update currentProduct with the saved one (which now has an ID)
             Notification.show("Product saved", 2000, Notification.Position.MIDDLE);
             updateGrid();
-            clearForm();
+            // No clearForm() here, so user can immediately add images to the newly saved product
+            // clearForm(); // Removed to allow immediate image upload
+            displayGallery(); // Refresh gallery in case product was new and now has an ID
         } catch (Exception ex) {
-            Notification.show("Please fix validation errors", 3000, Notification.Position.MIDDLE);
+            Notification.show("Please fix validation errors: " + ex.getMessage(), 3000, Notification.Position.MIDDLE);
         }
     }
 
@@ -269,6 +276,7 @@ public class AdminProductView extends View {
         grid.deselectAll();
         delete.setEnabled(false);
         save.setText("Save");
+        galleryContainer.removeAll(); // Clear gallery display
     }
 
     @Override

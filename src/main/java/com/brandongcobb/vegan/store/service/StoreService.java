@@ -102,4 +102,3 @@ public class StoreService {
         return categoryRepo.findAll();
     }
 }
-

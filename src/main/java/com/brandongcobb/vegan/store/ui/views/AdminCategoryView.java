@@ -254,4 +254,3 @@ public class AdminCategoryView extends Composite<VerticalLayout> implements Befo
         updateTree();
     }
 }
-

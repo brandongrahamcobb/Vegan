@@ -47,6 +47,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import com.vaadin.flow.component.notification.Notification;
 
+import com.brandongcobb.vegan.store.ui.components.CartButtonAndDropdown; // New import
+import com.brandongcobb.vegan.store.ui.components.ProductCard; // New import
+
 @Route(value = "store", layout = MainLayout.class)
 @PageTitle("Store | The Vyrtuous Project")
 @PermitAll
@@ -58,9 +61,7 @@ public class StoreView extends VerticalLayout implements BeforeEnterObserver {
     private final VeganRepository veganRepo;
 
     private final VerticalLayout catalog;
-    private final Div cartDropdown;
-    private final Button cartBtn;
-    private final Map<Product, Integer> cartSnapshot;
+    private final CartButtonAndDropdown cartButtonAndDropdown; // New component instance
 
     private Grid<Product> productGrid;
     private TextField searchField;
@@ -70,55 +71,25 @@ public class StoreView extends VerticalLayout implements BeforeEnterObserver {
 
     @Autowired
     public StoreView(StoreService storeService, CartService cartService,
-                     OrderService orderService, VeganRepository veganRepo) {
+                     OrderService orderService, VeganRepository veganRepo,
+                     CartButtonAndDropdown cartButtonAndDropdown) { // Inject new component
         this.storeService = storeService;
         this.cartService = cartService;
         this.orderService = orderService;
         this.veganRepo = veganRepo;
-        this.cartSnapshot = new LinkedHashMap<>();
+        this.cartButtonAndDropdown = cartButtonAndDropdown; // Assign injected component
 
         setSizeFull();
         setPadding(false);
         setSpacing(false);
 
-        // --- Cart dropdown setup ---
-        cartDropdown = new Div();
-        cartDropdown.addClassName("cart-dropdown");
-        cartDropdown.getStyle()
-                .set("position", "absolute")
-                .set("bottom", "100%")
-                .set("right", "0")
-                .set("background", "white")
-                .set("border", "1px solid #bbb")
-                .set("padding", "1em")
-                .set("min-width", "200px")
-                .set("z-index", "1000")
-                .set("display", "none");
-
-        cartBtn = new Button(VaadinIcon.CART.create());
-        cartBtn.addClickListener(e -> UI.getCurrent().navigate("checkout"));
-
-        Div cartContainer = new Div(cartBtn, cartDropdown);
-        cartContainer.getStyle()
-                .set("position", "fixed")
-                .set("bottom", "16px")
-                .set("right", "16px")
-                .set("z-index", "10000");
-
-        cartContainer.getElement().addEventListener("mouseenter", e -> {
-            cartDropdown.getStyle().set("display", "block");
-        });
-        cartContainer.getElement().addEventListener("mouseleave", e -> {
-            cartDropdown.getStyle().set("display", "none");
-        });
+        // --- Add new CartButtonAndDropdown component ---
+        add(cartButtonAndDropdown);
 
         // --- Catalog ---
         catalog = new VerticalLayout();
         catalog.addClassName("product-catalog");
         catalog.setSizeFull();
-
-        // --- Add components to view ---
-        add(cartContainer, catalog);
 
         // Header
         H1 header = new H1("Vegan Store");
@@ -158,48 +129,22 @@ public class StoreView extends VerticalLayout implements BeforeEnterObserver {
         productGrid = new Grid<>(Product.class);
         productGrid.setSizeFull();
         productGrid.setSelectionMode(Grid.SelectionMode.MULTI);
-        productGrid.addSelectionListener(e -> updateCart());
+        // Removed productGrid.addSelectionListener(e -> updateCart()); as it's no longer needed here
 
-        productGrid.addColumn(new ComponentRenderer<>(this::createProductCard)).setHeader("Products");
+        // Use the new ProductCard component for rendering products
+        productGrid.addColumn(new ComponentRenderer<>(product ->
+                new ProductCard(product, cartService, p -> cartButtonAndDropdown.refresh()) // Pass callback to refresh cart dropdown
+        )).setHeader("Products");
         catalog.add(productGrid);
 
+        add(catalog); // Add catalog to the main view
+
         loadProducts();
-        refreshCatalog(null);
-        refreshCartGrid();
+        // refreshCatalog(null); // Removed, as grid handles display
+        cartButtonAndDropdown.refresh(); // Initial refresh for the new component
     }
 
-    private Div createProductCard(Product product) {
-        Div card = new Div();
-        card.getStyle()
-                .set("display", "flex")
-                .set("flex-direction", "column")
-                .set("gap", "1em")
-                .set("padding", "1em")
-                .set("border", "1px solid var(--lumo-border-color)")
-                .set("border-radius", "var(--lumo-border-radius)")
-                .set("background", "var(--lumo-base-color)");
-
-        ProductImage thumbnailImg = product.getThumbnail();
-        Image thumbnail = new Image(thumbnailImg != null ? thumbnailImg.getUrl() : "", product.getName());
-        thumbnail.setWidth("100%");
-        thumbnail.setHeight("150px");
-        thumbnail.addClickListener(e -> UI.getCurrent().navigate("product/" + product.getId()));
-        Span brand = new Span(product.getBrand());
-
-        Span price = new Span("$" + product.getPrice().setScale(2, BigDecimal.ROUND_HALF_UP));
-        price.getStyle().set("font-weight", "bold");
-        Span name = new Span(product.getName());
-        Span stock = new Span(product.getStock() > 0 ? "In Stock" : "Out of Stock");
-        stock.getStyle().set("color", product.getStock() > 0 ? "green" : "red");
-
-        Button addToCart = new Button("Add to Cart", e -> {
-            cartService.addToCart(product, 1);
-            refreshCartGrid();
-        });
-
-        card.add(thumbnail, name, brand, price, stock, addToCart);
-        return card;
-    }
+    // Removed createProductCard method as it's now in ProductCard component
 
     private void loadProducts() {
         productGrid.setItems(storeService.findAllProducts());
@@ -236,71 +181,13 @@ public class StoreView extends VerticalLayout implements BeforeEnterObserver {
         return !inStockOnly.getValue() || p.getStock() > 0;
     }
 
-    private void refreshCatalog(String filter) {
-        catalog.removeAll();
-        String ctx = UI.getCurrent().getInternals().getContextRootRelativePath();
+    // Removed refreshCatalog method
 
-        List<Product> products = storeService.findAllProducts().stream()
-                .filter(p -> filter == null || filter.isBlank() || p.getName().toLowerCase().contains(filter.toLowerCase()))
-                .toList();
+    // Removed safeImageUrl method as it's now handled within ProductCard
 
-        for (Product p : products) {
-            VerticalLayout card = new VerticalLayout();
-            String mainUrl = p.getImages() != null && !p.getImages().isEmpty()
-                ? safeImageUrl(p.getImages().get(0).getUrl())
-                : "frontend/images/placeholder.png";
+    // Removed refreshCartGrid method as it's now handled within CartButtonAndDropdown
 
-            Image img = new Image(mainUrl, p.getName());
-            img.setWidth("100%");
-            img.addClickListener(e -> UI.getCurrent().navigate("product/" + p.getId()));
-            Button add = new Button("Add", e -> {
-                int current = cartService.getCartItems().getOrDefault(p, 0);
-                if (current >= p.getStock()) {
-                    Notification.show("Not enough stock available", 3000, Notification.Position.MIDDLE);
-                    return;
-                }
-                cartService.addToCart(p, 1);
-                refreshCartGrid();
-            });
-            card.add(img, new Span(p.getName()), new Span("$" + p.getPrice()), add);
-            card.setWidth("200px");
-            catalog.add(card);
-        }
-    }
-    
-    private String safeImageUrl(String url) {
-        return (url != null && !url.isBlank()) ? url : "frontend/images/placeholder.png";
-    }
-
-    private void refreshCartGrid() {
-        cartDropdown.removeAll();
-        Map<Product, Integer> items = cartService.getCartItems();
-
-        if (items.isEmpty()) {
-            cartDropdown.add(new Span("Cart is empty"));
-        } else {
-            Grid<CartItem> dropdownCart = new Grid<>(CartItem.class, false);
-            dropdownCart.setAllRowsVisible(true);
-
-            dropdownCart.addColumn(ci -> ci.product.getName()).setHeader("Product");
-            dropdownCart.addColumn(ci -> ci.quantity).setHeader("Qty");
-            dropdownCart.addComponentColumn(ci -> new Button("×", e -> {
-                cartService.removeFromCart(ci.product);
-                refreshCartGrid();
-            })).setHeader("Remove");
-
-            dropdownCart.setItems(
-                    items.entrySet().stream().map(e -> new CartItem(e.getKey(), e.getValue())).toList()
-            );
-
-            cartDropdown.add(dropdownCart);
-            cartDropdown.add(new Button("Go to Checkout", e -> UI.getCurrent().navigate("checkout")));
-        }
-    }
-
-    private void updateCart() {
-        refreshCartGrid();
-    }
+    // Removed updateCart method as it's now handled by the callback to CartButtonAndDropdown
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
@@ -311,9 +198,9 @@ public class StoreView extends VerticalLayout implements BeforeEnterObserver {
             });
         }
 
-        refreshCatalog(null);
-        refreshCartGrid();
+        // refreshCatalog(null); // Removed
+        cartButtonAndDropdown.refresh(); // Ensure cart dropdown is up-to-date
     }
 
-    private record CartItem(Product product, int quantity) {}
+    // Removed CartItem record as it's now in CartButtonAndDropdown (as CartItemDisplay)
 }
