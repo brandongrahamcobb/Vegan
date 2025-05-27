@@ -11,8 +11,6 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.function.Runnable;
-
 @Component
 public class CartItemRow extends HorizontalLayout {
 
