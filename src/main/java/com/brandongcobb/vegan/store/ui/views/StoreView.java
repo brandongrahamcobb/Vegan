@@ -141,7 +141,7 @@ public class StoreView extends VerticalLayout implements BeforeEnterObserver {
 
         loadProducts();
         // refreshCatalog(null); // Removed, as grid handles display
-        cartButtonAndDropdown.refresh(); // Initial refresh for the new component
+        // cartButtonAndDropdown.refresh(); // Removed from constructor, will be called by onAttach in CartButtonAndDropdown
     }
 
     // Removed createProductCard method as it's now in ProductCard component

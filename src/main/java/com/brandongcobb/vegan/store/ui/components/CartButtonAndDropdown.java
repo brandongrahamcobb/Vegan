@@ -2,7 +2,8 @@ package com.brandongcobb.vegan.store.ui.components;
 
 import com.brandongcobb.vegan.store.domain.Product;
 import com.brandongcobb.vegan.store.service.CartService;
-import com.brandongcobb.vegan.store.ui.views.CheckoutView;
+import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.AttachNotifier;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 @Component
-public class CartButtonAndDropdown extends Div {
+public class CartButtonAndDropdown extends Div implements AttachNotifier { // Implement AttachNotifier
 
     private final CartService cartService;
 
@@ -58,7 +59,13 @@ public class CartButtonAndDropdown extends Div {
 
         add(cartBtn, cartDropdown);
 
-        refresh(); // Initial refresh
+        // Removed refresh() from constructor. It will be called onAttach.
+    }
+
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+        refresh(); // Call refresh when the component is attached to the UI
     }
 
     public void refresh() {
